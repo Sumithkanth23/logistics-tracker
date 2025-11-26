@@ -27,7 +27,8 @@ document.getElementById("loginForm").addEventListener("submit", (e) => {
   signInWithEmailAndPassword(auth, email, password)
     .then(() => {
       // Redirect to tracking page on success
-      window.location.href = "tracking.html";
+          // Redirect to user home page
+          window.location.href = "./user/home.html";
     })
     .catch((error) => {
       // Show error message

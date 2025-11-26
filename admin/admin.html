@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin - Access Control</title>
+  <link rel="stylesheet" href="../admin.css" />
+</head>
+<body>
+  <div class="container">
+    <h2>Admin Panel</h2>
+    <div id="loginSection">
+      <input type="email" id="adminEmail" placeholder="Admin Email" />
+      <input type="password" id="adminPassword" placeholder="Password" />
+      <button onclick="adminLogin()">Login</button>
+      <p id="loginMessage"></p>
+    </div>
+
+    <div id="accessSection" style="display: none;">
+      <input type="email" id="userEmail" placeholder="Enter Email to Allow" />
+      <button onclick="addAccess()">Allow Access</button>
+      <p id="accessMessage"></p>
+    </div>
+  </div>
+
+  <script type="module" src="admin.js"></script>
+</body>
+</html>

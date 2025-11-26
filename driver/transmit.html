@@ -1,0 +1,65 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Location Sender</title>
+  <link rel="stylesheet" href="../index.css" />
+  <style>
+    :root{ --brand-green:#2f8a4a; --brand-dark:#1f5f36; --bg:#f4f7f5; --muted:#6b7280 }
+    body{ background:var(--bg); font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#111 }
+    .header { background: var(--brand-green); color:#fff; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; }
+    .container{ max-width:720px; margin:24px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06) }
+    h1{ color:var(--brand-dark) }
+    input, select{ padding:10px; border-radius:8px; border:1px solid #e6eef0 }
+    .btn{ padding:10px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
+    .btn.primary{ background:var(--brand-green); color:#fff }
+    .btn.ghost{ background:#f6fbf6; color:var(--brand-dark); border:1px solid rgba(47,138,74,0.06) }
+    .status{ margin-top:12px; color:var(--muted) }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">Logistic Transport Tracker - Driver</div>
+    <div>
+      <button onclick="location.href='login.html'" class="btn ghost">Driver Login</button>
+      <button onclick="location.href='../user/home.html'" class="btn ghost">Dashboard</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Driver Location Uploader</h1>
+    <p>Start sending your live location for the vehicle you're assigned to.</p>
+
+    <form id="transmitForm" onsubmit="event.preventDefault(); startSendingLocation();">
+      <label for="vehicleInput">Vehicle Number</label>
+      <input id="vehicleInput" placeholder="TN 38 AB 1234" />
+
+      <div id="vehicleInfo" style="margin-top:10px; display:none;">
+        <strong>Vehicle:</strong> <span id="vehicleDisplay"></span>
+        <button type="button" id="changeVehicleBtn" class="btn ghost" style="margin-left:8px;">Change Vehicle</button>
+      </div>
+
+      <div style="margin-top:12px;">
+        <button type="button" id="sendOnceBtn" class="btn primary">Send Location Now</button>
+        <button type="submit" id="startBtn" class="btn primary">Start Sending</button>
+        <button type="button" id="stopBtn" class="btn ghost" style="display:none;">Stop Sending</button>
+      </div>
+    </form>
+
+    <div id="statusMessage" class="status"></div>
+    <div id="sendAnimation" style="display:none; margin-top:12px;">
+      <div style="display:flex; align-items:center; gap:8px;">
+        <div id="pulseDot" style="width:14px; height:14px; border-radius:50%; background:var(--brand-green); box-shadow:0 0 0 rgba(47,138,74,0.6); animation:pulse 1.6s infinite;"></div>
+        <div style="color:var(--brand-dark);">Sending live location...</div>
+      </div>
+    </div>
+
+    <style>
+      @keyframes pulse { 0% { box-shadow:0 0 0 0 rgba(47,138,74,0.6);} 70% { box-shadow:0 0 0 12px rgba(47,138,74,0);} 100% { box-shadow:0 0 0 0 rgba(47,138,74,0);} }
+    </style>
+  </div>
+
+  <script type="module" src="transmit.js"></script>
+</body>
+</html>

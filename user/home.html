@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>User Dashboard</title>
+  <link rel="stylesheet" href="../css/index.css" />
+  <style>
+    /* Dashboard styles - green professional theme */
+    :root{ --brand-green:#2f8a4a; --brand-dark:#1f5f36; --muted:#6b7280; --bg:#f4f7f5 }
+    body { background:var(--bg); color:#111; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
+    .header { background: var(--brand-green); color: #fff; padding: 14px 20px; display:flex; align-items:center; justify-content:space-between; box-shadow: 0 4px 18px rgba(15,23,42,0.08); }
+    .header .brand { font-weight:700; font-size:18px; letter-spacing:0.2px; }
+    .header button { margin-left:8px; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600 }
+    .header button:hover { background: rgba(255,255,255,0.06); }
+    .main { max-width:1100px; margin:28px auto; padding:24px; }
+    .controls { margin-bottom:18px; display:flex; gap:12px; align-items:center }
+    input#searchVehicle { padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; width:240px }
+    button#refreshBtn { padding:8px 10px; border-radius:8px; border:none; background:var(--brand-green); color:#fff; cursor:pointer }
+    .cards { display:flex; gap:16px; flex-wrap:wrap; }
+    .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,42,0.06); width:260px; border-left:4px solid var(--brand-green); }
+    .card h4{ margin:6px 0 8px; color:var(--brand-dark) }
+    .card small{ color:var(--muted) }
+    .card .actions { margin-top:12px }
+    .card button { background:var(--brand-green); color:#fff; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:600 }
+    .card button.secondary { background:#eef7f0; color:var(--brand-dark); border:1px solid rgba(47,138,74,0.08); margin-left:8px }
+    .footer { text-align:center; color:var(--muted); margin:40px 0 20px }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">Dashboard</div>
+    <div>
+      <button id="openTrackerBtn">Open Tracker</button>
+      <button id="createVehicleBtn">New Vehicle</button>
+      <button id="logoutBtn">Logout</button>
+    </div>
+  </header>
+
+  <main class="main">
+    <div class="controls">
+      <div id="authInfo"></div>
+      <div style="margin-left:auto">
+        <input id="searchVehicle" placeholder="Search vehicles" />
+        <button id="refreshBtn">Refresh</button>
+      </div>
+    </div>
+
+    <section>
+      <h2>Your Vehicles</h2>
+      <div class="cards" id="vehicleCards">
+        <!-- vehicle cards populated here -->
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">&copy; 2025 Logistic Transport Tracker</footer>
+
+  <script type="module" src="./js/home.js"></script>
+</body>
+</html>

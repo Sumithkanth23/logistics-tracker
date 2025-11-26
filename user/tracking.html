@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Logistic Transport Tracker</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet"/>
+  <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" rel="stylesheet"/>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="./css/tracking.css" />
+</head>
+<body>
+  <!-- Minimal tracking page: map only -->
+  <div id="map"></div>
+  <div class="user-dropdown">
+    <button id="logoutBtn">Logout</button>
+  </div>
+  <div id="message" class="message" style="display:none;"></div>
+
+  <!-- Selected vehicle info (top-left) -->
+  <div id="selectedInfo" class="selected-info" aria-live="polite" style="display:none;">
+    <div class="pin"></div>
+    <div class="info">
+      <div id="selectedLabel" class="label">Selected vehicle</div>
+      <div id="selectedAddress" class="address"></div>
+      <div id="selectedMeta" class="meta"></div>
+    </div>
+  </div>
+
+  <!-- Right side vehicles list -->
+  <aside id="rightSidebar" class="right-sidebar">
+    <h4>Other Vehicles</h4>
+    <div id="vehicleCardsSidebar" class="cards"></div>
+  </aside>
+  <!-- Mapbox & Firebase -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+  <script type="module" src="./js/tracking.js"></script>
+</body>
+</html>

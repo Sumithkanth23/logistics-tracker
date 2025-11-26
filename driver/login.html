@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Driver Login</title>
+  <link rel="stylesheet" href="../index.css" />
+  <style>
+    :root{ --brand-green:#2f8a4a; --brand-dark:#1f5f36; --bg:#f4f7f5; --muted:#6b7280 }
+    body{ background:var(--bg); font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#111 }
+    .header { background: var(--brand-green); color:#fff; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; }
+    .container{ max-width:640px; margin:36px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06) }
+    h1{ color:var(--brand-dark); margin-bottom:6px }
+    p.lead{ color:var(--muted); margin-bottom:16px }
+    input{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6eef0; margin-bottom:12px }
+    .btn{ padding:10px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
+    .btn.primary{ background:var(--brand-green); color:#fff }
+    .status{ color:var(--muted); margin-top:8px }
+    .links{ margin-top:12px }
+    .links a{ color:var(--brand-green); text-decoration:none }
+  </style>
+</head>
+<body>
+  <header class="header">
+    <div class="brand">Logistic Transport Tracker - Driver</div>
+    <div>
+      <button onclick="location.href='../user/home.html'" class="btn ghost">Dashboard</button>
+    </div>
+  </header>
+
+  <div class="container">
+    <h1>Driver Login</h1>
+    <p class="lead">Sign in with the vehicle number to start sending location. No password required.</p>
+
+    <label for="vehicleNo">Vehicle number</label>
+    <input id="vehicleNo" placeholder="TN 38 AB 1234" />
+
+    <div>
+      <button id="loginBtn" class="btn primary">Login as Driver</button>
+    </div>
+
+    <div id="status" class="status"></div>
+
+  </div>
+
+  <script type="module" src="login.js"></script>
+</body>
+</html>
