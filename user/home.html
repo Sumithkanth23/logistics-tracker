@@ -8,36 +8,66 @@
   <style>
     /* Dashboard styles - green professional theme */
     :root{ --brand-green:#2f8a4a; --brand-dark:#1f5f36; --muted:#6b7280; --bg:#f4f7f5 }
-    body { background:var(--bg); color:#111; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; }
-    .header { background: var(--brand-green); color: #fff; padding: 14px 20px; display:flex; align-items:center; justify-content:space-between; box-shadow: 0 4px 18px rgba(15,23,42,0.08); }
+    *{box-sizing:border-box; margin: 0; padding: 0;}
+    html,body{height:100%}
+    body { background:var(--bg); color:#111; font-family: Inter, system-ui, -apple-system, 'Segoe UI', Roboto, 'Helvetica Neue', Arial; margin:0; padding:0; display:flex; flex-direction:column; min-height:100vh }
+    .header { background: var(--brand-green); color: #fff; padding: 12px 18px; display:flex; align-items:center; justify-content:space-between; box-shadow: 0 4px 18px rgba(15,23,42,0.08); }
     .header .brand { font-weight:700; font-size:18px; letter-spacing:0.2px; }
-    .header button { margin-left:8px; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600 }
-    .header button:hover { background: rgba(255,255,255,0.06); }
-    .main { max-width:1100px; margin:28px auto; padding:24px; }
+    .header-actions { display:flex; gap:8px; align-items:center }
+    .header button { margin-left:0; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; transition: transform .12s ease, background .12s ease }
+    .header button:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }
+    .main { max-width:1400px; margin:20px auto; padding-right: 5%; padding-left: 5%; flex:1 }
     .controls { margin-bottom:18px; display:flex; gap:12px; align-items:center }
     input#searchVehicle { padding:8px 10px; border:1px solid #d1d5db; border-radius:8px; width:240px }
     button#refreshBtn { padding:8px 10px; border-radius:8px; border:none; background:var(--brand-green); color:#fff; cursor:pointer }
     .cards { display:flex; gap:16px; flex-wrap:wrap; }
-    .card { background:#fff; padding:16px; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,42,0.06); width:260px; border-left:4px solid var(--brand-green); }
+    .card { background:#fff; padding:18px; border-radius:10px; box-shadow:0 8px 24px rgba(15,23,42,0.06); width:300px; border-left:4px solid var(--brand-green); }
     .card h4{ margin:6px 0 8px; color:var(--brand-dark) }
     .card small{ color:var(--muted) }
     .card .actions { margin-top:12px }
-    .card button { background:var(--brand-green); color:#fff; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:600 }
+    .card button { background:var(--brand-green); color:#fff; border:none; padding:8px 10px; border-radius:8px; cursor:pointer; font-weight:600; transition: transform .12s ease, box-shadow .12s ease }
+    .card button:hover{ transform: translateY(-3px); box-shadow:0 8px 18px rgba(15,23,42,0.12) }
     .card button.secondary { background:#eef7f0; color:var(--brand-dark); border:1px solid rgba(47,138,74,0.08); margin-left:8px }
-    .footer { text-align:center; color:var(--muted); margin:40px 0 20px }
+    .footer { background:#1f2937; color:#e5e7eb; padding:16px 12px; }
+    .footer a{ color:#93c5fd; text-decoration:none }
+
+    /* User menu */
+    .user-menu{position:relative}
+    .avatar{width:36px;height:36px;border-radius:50%;background:#fff;color:var(--brand-green);display:flex;align-items:center;justify-content:center;font-weight:700;cursor:pointer;border:2px solid rgba(255,255,255,0.14)}
+    .user-dropdown{position:absolute;right:0;top:46px;background:#fff;color:#111;border-radius:8px;box-shadow:0 8px 24px rgba(15,23,42,0.12);overflow:hidden;display:none;min-width:140px}
+    .user-dropdown a, .user-dropdown button{display:block;padding:10px 12px;border:none;background:transparent;text-align:left;width:100%;cursor:pointer}
+    .user-dropdown a{color:var(--brand-dark);text-decoration:none}
+    .user-dropdown button{color:#333}
+    .user-dropdown a:hover, .user-dropdown button:hover{background:#f6f7f6}
+
+    /* Dashboard summary */
+    .summary{display:flex;gap:12px;margin-bottom:18px}
+    .summary .stat{background:#fff;padding:12px;border-radius:8px;box-shadow:0 6px 18px rgba(15,23,42,0.04);flex:1;border-left:4px solid var(--brand-green);padding-left:14px}
+    .summary .stat h3{margin:0;color:var(--brand-dark)}
+    .summary .stat p{margin:6px 0 0;color:var(--muted)}
   </style>
 </head>
 <body>
   <header class="header">
     <div class="brand">Dashboard</div>
-    <div>
+    <div class="header-actions">
       <button id="openTrackerBtn">Open Tracker</button>
       <button id="createVehicleBtn">New Vehicle</button>
-      <button id="logoutBtn">Logout</button>
+      <div class="user-menu" id="userMenu">
+        <div class="avatar" id="userAvatar">U</div>
+        <div class="user-dropdown" id="userDropdown">
+          <button id="logoutBtn">Logout</button>
+        </div>
+      </div>
     </div>
   </header>
 
   <main class="main">
+    <div class="summary" id="dashboardSummary">
+      <div class="stat"><h3 id="totalVehicles">-</h3><p>Total vehicles</p></div>
+      <div class="stat"><h3 id="activeVehicles">-</h3><p>Active now</p></div>
+      <div class="stat"><h3 id="lastUpdated">-</h3><p>Last updated</p></div>
+    </div>
     <div class="controls">
       <div id="authInfo"></div>
       <div style="margin-left:auto">
@@ -54,7 +84,21 @@
     </section>
   </main>
 
-  <footer class="footer">&copy; 2025 Logistic Transport Tracker</footer>
+  <footer class="footer">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <strong>Logistic Transport Tracker</strong> &middot; Developer: <span id="devId">Sumithkanth23</span>
+        <div style="font-size:12px;color:#cbd5e1">Contact: <a href="mailto:contact@logistictransport.example">contact@logistictransport.example</a> &middot; Version 1.0</div>
+      </div>
+      <div style="font-size:13px;color:#cbd5e1">
+        <a href="../privacy.html">Privacy</a>
+        <span style="margin:0 8px">|</span>
+        <a href="../terms.html">Terms</a>
+        <span style="margin:0 8px">|</span>
+        <a href="mailto:contact@logistictransport.example">Contact Us</a>
+      </div>
+    </div>
+  </footer>
 
   <script type="module" src="./js/home.js"></script>
 </body>

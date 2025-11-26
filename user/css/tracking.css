@@ -1,3 +1,4 @@
+:root{ --brand-green: #2f8a4a; --brand-dark:#1f5f36; --muted:#6b7280 }
 html, body {
   margin: 0;
   padding: 0;
@@ -26,7 +27,10 @@ html, body {
   display: flex;
   gap: 10px;
   align-items: center;
-  min-width: 260px;
+  min-width: 220px;
+  max-width: 25%;
+  box-sizing: border-box;
+  border-left: 4px solid var(--brand-green);
 }
 .selected-info .pin{ width:36px; height:36px; background-image:url('https://img.icons8.com/ios/452/bus.png'); background-size:contain; background-repeat:no-repeat; }
 .selected-info .info .label{ font-weight:700; color:#0f172a }
@@ -39,30 +43,42 @@ html, body {
   right: 12px;
   top: 12px;
   bottom: 12px;
-  width: 320px;
-  max-width: 36%;
+  width: 25%;
+  max-width: 420px;
+  min-width: 220px;
   background: rgba(255,255,255,0.96);
   border-radius: 10px;
   padding: 12px;
   overflow-y: auto;
   box-shadow: 0 8px 30px rgba(15,23,42,0.12);
   z-index: 18;
+  box-sizing: border-box;
 }
 .right-sidebar h4{ margin:6px 0 10px; color:#0f172a }
 .vehicle-card{
-  background:#fff; border-radius:8px; padding:10px; margin-bottom:10px; box-shadow:0 6px 18px rgba(15,23,42,0.04); display:flex; flex-direction:column;
+  background:#fff; border-radius:8px; padding:12px; margin-bottom:10px; box-shadow:0 6px 18px rgba(15,23,42,0.04); display:flex; flex-direction:column; box-sizing:border-box; width:100%;
+  border-left:4px solid var(--brand-green);
+  min-height:88px;
+  transition: transform .12s ease, box-shadow .12s ease, border-color .12s ease;
 }
-.vehicle-card .title{ font-weight:700; color:#0f172a }
-.vehicle-card .subtitle{ color:#6b7280; font-size:13px; margin-top:6px }
+.vehicle-card .title{ font-weight:700; color:#0f172a; word-wrap:break-word; overflow-wrap:anywhere }
+.vehicle-card .subtitle{ color:#6b7280; font-size:13px; margin-top:6px; word-wrap:break-word; overflow-wrap:anywhere }
 .vehicle-card .actions{ margin-top:10px; display:flex; gap:8px }
 .btn-mini{ padding:8px 10px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
 .btn-mini.track{ background:#2f8a4a; color:#fff }
 .btn-mini.details{ background:#eef7f0; color:#0f172a; border:1px solid rgba(47,138,74,0.06) }
+.btn-mini{ transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease }
+.btn-mini:hover{ transform: translateY(-3px); box-shadow:0 8px 18px rgba(15,23,42,0.12) }
+
+.vehicle-card:hover{ transform: translateY(-4px); box-shadow:0 12px 34px rgba(15,23,42,0.12); border-left-color: #1f6f3a }
 
 /* Make sure map doesn't get covered by sidebar on small screens */
+@media (max-width: 1024px){
+  .right-sidebar{ width: 38%; max-width: 360px }
+}
 @media (max-width: 720px){
   .right-sidebar{ width: 46%; }
-  .selected-info{ min-width:200px }
+  .selected-info{ min-width:200px; max-width: 60% }
 }
 
 /* Top Floating UI */

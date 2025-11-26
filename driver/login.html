@@ -4,31 +4,53 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Driver Login</title>
-  <link rel="stylesheet" href="../index.css" />
   <style>
-    :root{ --brand-green:#2f8a4a; --brand-dark:#1f5f36; --bg:#f4f7f5; --muted:#6b7280 }
-    body{ background:var(--bg); font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#111 }
-    .header { background: var(--brand-green); color:#fff; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; }
-    .container{ max-width:640px; margin:36px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06) }
+    *{box-sizing:border-box}
+    html,body{height:100%; min-height: 100%;}
+    body{margin:0;padding:0;display:flex;flex-direction:column;min-height:100vh;font-family:Inter,system-ui,Arial}
+    .header{background:#2f8a4a;color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+    .brand{font-weight:700}
+    .header-actions{display:flex;gap:8px;align-items:center}
+    .avatar{width:36px;height:36px;border-radius:50%;background:#fff;color:#2f8a4a;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid rgba(255,255,255,0.14);cursor:pointer}
+    .user-dropdown{position:absolute;right:12px;top:56px;background:#fff;color:#111;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);display:none}
+    .main{flex:1;padding:20px}
+    .container{ max-width:640px; margin:36px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06); border-left:4px solid #2f8a4a; padding-left:18px }
     h1{ color:var(--brand-dark); margin-bottom:6px }
     p.lead{ color:var(--muted); margin-bottom:16px }
     input{ width:100%; padding:10px 12px; border-radius:8px; border:1px solid #e6eef0; margin-bottom:12px }
-    .btn{ padding:10px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
-    .btn.primary{ background:var(--brand-green); color:#fff }
+    .btn{ padding:10px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease }
+    .btn:hover{ transform: translateY(-3px); box-shadow:0 10px 24px rgba(15,23,42,0.08) }
+    .btn.primary{ background:#2f8a4a; color:#fff }
     .status{ color:var(--muted); margin-top:8px }
     .links{ margin-top:12px }
-    .links a{ color:var(--brand-green); text-decoration:none }
+    .links a{ color:#2f8a4a; text-decoration:none }
+    /* footer styling to keep it visually anchored */
+.footer {
+  background:#1f2937;
+  color:#e5e7eb;
+  padding:16px 12px;
+  margin-top:auto;
+  width:100%;
+}    
+.footer a{ color:#93c5fd }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="brand">Logistic Transport Tracker - Driver</div>
-    <div>
-      <button onclick="location.href='../user/home.html'" class="btn ghost">Dashboard</button>
+    <div class="header-actions">
+      <a href="../user/home.html" style="color:#fff;text-decoration:none">Dashboard</a>
+      <div style="position:relative">
+        <div class="avatar" id="userAvatar">D</div>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="../user/home.html" style="display:block;padding:10px 12px;text-decoration:none;color:#111">Main</a>
+        </div>
+      </div>
     </div>
   </header>
 
-  <div class="container">
+  <main class="main">
+    <div class="container">
     <h1>Driver Login</h1>
     <p class="lead">Sign in with the vehicle number to start sending location. No password required.</p>
 
@@ -42,6 +64,23 @@
     <div id="status" class="status"></div>
 
   </div>
+  </main>
+
+  <footer class="footer">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <strong>Logistic Transport Tracker</strong> &middot; Developer: <span id="devId">Sumithkanth23</span>
+        <div style="font-size:12px;color:#cbd5e1">Contact: <a href="mailto:contact@logistictransport.example">contact@logistictransport.example</a> &middot; Version 1.0</div>
+      </div>
+      <div style="font-size:13px;color:#cbd5e1">
+        <a href="../privacy.html">Privacy</a>
+        <span style="margin:0 8px">|</span>
+        <a href="../terms.html">Terms</a>
+        <span style="margin:0 8px">|</span>
+        <a href="mailto:contact@logistictransport.example">Contact Us</a>
+      </div>
+    </div>
+  </footer>
 
   <script type="module" src="login.js"></script>
 </body>

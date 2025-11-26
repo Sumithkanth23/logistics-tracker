@@ -7,15 +7,25 @@
   <link rel="stylesheet" href="../css/index.css" />
   <style>
     :root{ --brand-green:#2f8a4a; --brand-dark:#1f5f36; --bg:#f4f7f5; --muted:#6b7280 }
-    body{ background:var(--bg); font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#111 }
-    .header { background: var(--brand-green); color:#fff; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; border-radius:0 0 8px 8px }
+    body{ background:var(--bg); font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#111; padding:0; margin:0 }
+    .header { background: var(--brand-green); color:#fff; padding:0; display:block; border-radius:0 0 8px 8px }
     .header .brand{ font-weight:700 }
-    .header button{ background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.12); padding:8px 10px; border-radius:8px; cursor:pointer }
-    .container{ max-width:720px; margin:28px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06) }
+    .header button { margin-left:0; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; transition: transform .12s ease, background .12s ease }
+    .header button:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); }    html,body{ height:100%; }
+    body{ display:flex; flex-direction:column; min-height:100vh }
+    .container{ max-width:1200px; margin:28px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06); border-left:4px solid var(--brand-green); padding-left:18px; flex:1 }
+    .inner{ max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 18px; box-sizing:border-box }
+    .header-actions{ display:flex; gap:8px; align-items:center }
+    .brand{ font-size:18px; font-weight:700 }
+    /* page layout helpers */
+    .content{ max-width:1200px; margin:0 auto; padding:0 18px; box-sizing:border-box }
+    .form-wrap{ max-width:760px; margin:0 }
     form label{ display:block; margin-top:12px; color:var(--muted); font-size:14px }
     form input{ width:100%; padding:10px 12px; margin-top:6px; border:1px solid #e6eef0; border-radius:8px }
-    .actions{ margin-top:16px }
-    .btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
+    .actions{ margin-top:16px; display:flex; gap:12px; align-items:center }
+    .actions .btn{ min-width:140px }
+    .btn { padding:10px 14px; border-radius:8px; border:none; cursor:pointer; font-weight:700; transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease }
+    .btn:hover{ transform: translateY(-3px); box-shadow:0 10px 24px rgba(15,23,42,0.08) }
     .btn.primary{ background:var(--brand-green); color:#fff }
     .btn.ghost{ background:#f6fbf6; color:var(--brand-dark); border:1px solid rgba(47,138,74,0.06) }
     .status { margin-top:12px; color:var(--muted) }
@@ -23,26 +33,48 @@
 </head>
 <body>
   <header class="header">
-    <div class="brand">Logistic Transport Tracker</div>
-    <div>
-      <button onclick="location.href='tracking.html'">Open Tracker</button>
-      <button onclick="location.href='home.html'">Dashboard</button>
+    <div class="inner">
+      <div class="brand">Logistic Transport Tracker</div>
+      <div class="header-actions">
+        <button onclick="location.href='tracking.html'">Open Tracker</button>
+        <button onclick="location.href='home.html'">Dashboard</button>
+      </div>
     </div>
   </header>
   <div class="container">
-    <h2>Create New Vehicle</h2>
-    <form id="createVehicleForm">
-      <label for="vehicleNumber">Vehicle Number</label>
-      <input id="vehicleNumber" name="vehicleNumber" placeholder="TN 38 AB 1234" required />
-      <label for="vehicleDesc">Optional Description</label>
-      <input id="vehicleDesc" name="vehicleDesc" placeholder="Bus route, model or notes" />
-      <div class="actions">
-        <button type="submit" id="createBtn" class="btn primary">Create Vehicle</button>
-        <button type="button" id="cancelBtn" class="btn ghost">Cancel</button>
+    <div class="content">
+      <div class="form-wrap">
+        <h2>Create New Vehicle</h2>
+        <form id="createVehicleForm">
+          <label for="vehicleNumber">Vehicle Number</label>
+          <input id="vehicleNumber" name="vehicleNumber" placeholder="TN 38 AB 1234" required />
+          <label for="vehicleDesc">Optional Description</label>
+          <input id="vehicleDesc" name="vehicleDesc" placeholder="Bus route, model or notes" />
+          <div class="actions">
+            <button type="submit" id="createBtn" class="btn primary">Create Vehicle</button>
+            <button type="button" id="cancelBtn" class="btn ghost">Cancel</button>
+          </div>
+          <div class="status" id="formStatus"></div>
+        </form>
       </div>
-      <div class="status" id="formStatus"></div>
-    </form>
+    </div>
   </div>
+  <footer class="footer" style="background:#374151;color:#e5e7eb;">
+    <div class="inner" style="flex-wrap:wrap;">
+      <div>
+        <strong>Logistic Transport Tracker</strong> &middot; Developer: <span id="devId">Sumithkanth23</span>
+        <div style="font-size:12px;color:#cbd5e1">Contact: <a href="mailto:sumithkanth810@gmail.com" style="color:#e5e7eb">sumithkanth810@gmail.com</a> &middot; Version 1.0</div>
+      </div>
+      <div style="font-size:13px;color:#e5e7eb">
+        <a href="../privacy.html" style="color:#e5e7eb">Privacy</a>
+        <span style="margin:0 8px">|</span>
+        <a href="../terms.html" style="color:#e5e7eb">Terms</a>
+        <span style="margin:0 8px">|</span>
+        <a href="mailto:sumithkanth810@gmail.com" style="color:#e5e7eb">Contact Us</a>
+      </div>
+    </div>
+  </footer>
+
   <script type="module" src="./js/create_vehicle.js"></script>
 </body>
 </html>

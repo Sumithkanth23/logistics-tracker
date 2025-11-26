@@ -10,12 +10,17 @@
 
   <!-- Custom CSS -->
   <link rel="stylesheet" href="./css/tracking.css" />
+  <style>
+    /* small tracking UI tweaks */
+    body { margin:0; }
+  </style>
 </head>
 <body>
   <!-- Minimal tracking page: map only -->
   <div id="map"></div>
-  <div class="user-dropdown">
-    <button id="logoutBtn">Logout</button>
+  <div class="user-dropdown" style="right:12px;top:12px;position:absolute;z-index:9999;">
+    <a id="dashboardBtn" href="../user/home.html" class="btn-mini details" style="margin-right:8px">Dashboard</a>
+    <button id="logoutBtn" class="btn-mini track">Logout</button>
   </div>
   <div id="message" class="message" style="display:none;"></div>
 

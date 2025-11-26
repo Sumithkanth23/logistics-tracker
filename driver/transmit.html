@@ -4,62 +4,87 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Driver Location Sender</title>
-  <link rel="stylesheet" href="../index.css" />
   <style>
-    :root{ --brand-green:#2f8a4a; --brand-dark:#1f5f36; --bg:#f4f7f5; --muted:#6b7280 }
-    body{ background:var(--bg); font-family:Inter, system-ui, -apple-system, 'Segoe UI', Roboto, Arial; color:#111 }
-    .header { background: var(--brand-green); color:#fff; padding:12px 18px; display:flex; align-items:center; justify-content:space-between; }
-    .container{ max-width:720px; margin:24px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06) }
+    *{box-sizing:border-box}
+    html, body {min-height: 100%; margin: 0; padding: 0; display: flex; flex-direction: column;}
+    body{margin:0;padding:0;display:flex;flex-direction:column;min-height:100vh;font-family:Inter,system-ui,Arial}
+    .header{background:#2f8a4a;color:#fff;padding:0;display:block}
+    .brand{font-weight:700}
+    .header-actions{display:flex;gap:8px;align-items:center}
+    .header button { margin-left:0; background:transparent; color:#fff; border:1px solid rgba(255,255,255,0.15); padding:8px 12px; border-radius:8px; cursor:pointer; font-weight:600; transition: transform .12s ease, background .12s ease }
+    .header button:hover { background: rgba(255,255,255,0.06); transform: translateY(-2px); } 
+    .avatar{width:36px;height:36px;border-radius:50%;background:#fff;color:#2f8a4a;display:flex;align-items:center;justify-content:center;font-weight:700;border:2px solid rgba(255,255,255,0.14);cursor:pointer}
+    .user-dropdown{position:absolute;right:12px;top:56px;background:#fff;color:#111;border-radius:8px;box-shadow:0 8px 24px rgba(0,0,0,0.08);display:none}
+    .main{flex:1;padding:20px}
+    .container{ max-width:1200px; margin:24px auto; padding:20px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06); border-left:4px solid #2f8a4a; padding-left:18px; flex:1 }
+    .inner{ max-width:1200px; margin:0 auto; display:flex; justify-content:space-between; align-items:center; gap:12px; padding:12px 18px; box-sizing:border-box }
+    .content{ max-width:1200px; margin:0 auto; padding:0 18px; box-sizing:border-box }
+    .form-wrap{ max-width:760px; margin:0 }
     h1{ color:var(--brand-dark) }
     input, select{ padding:10px; border-radius:8px; border:1px solid #e6eef0 }
-    .btn{ padding:10px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700 }
-    .btn.primary{ background:var(--brand-green); color:#fff }
+    .btn{ padding:10px 12px; border-radius:8px; border:none; cursor:pointer; font-weight:700; transition: transform .12s ease, box-shadow .12s ease, opacity .12s ease }
+    .btn:hover{ transform: translateY(-3px); box-shadow:0 10px 24px rgba(15,23,42,0.08) }
+    .btn.primary{ background: #2f8a4a; color:#fff }
     .btn.ghost{ background:#f6fbf6; color:var(--brand-dark); border:1px solid rgba(47,138,74,0.06) }
     .status{ margin-top:12px; color:var(--muted) }
+    .footer {background:#1f2937; color:#e5e7eb; padding:16px 12px; margin-top:auto; width:100%; }    
   </style>
 </head>
 <body>
   <header class="header">
-    <div class="brand">Logistic Transport Tracker - Driver</div>
-    <div>
-      <button onclick="location.href='login.html'" class="btn ghost">Driver Login</button>
-      <button onclick="location.href='../user/home.html'" class="btn ghost">Dashboard</button>
+    <div class="inner">
+      <div class="brand">Logistic Transport Tracker - Driver</div>
+      <div class="header-actions">
+        <a href="../user/home.html" style="color:#fff;text-decoration:none">Dashboard</a>
+        <div style="position:relative">
+          <div class="avatar" id="userAvatar">D</div>
+          <div class="user-dropdown" id="userDropdown">
+            <a href="../user/home.html" style="display:block;padding:10px 12px;text-decoration:none;color:#111">Main</a>
+          </div>
+        </div>
+      </div>
     </div>
   </header>
 
-  <div class="container">
-    <h1>Driver Location Uploader</h1>
-    <p>Start sending your live location for the vehicle you're assigned to.</p>
+  <main class="main">
+    <div class="container">
+      <div class="content">
+        <div class="form-wrap">
+          <h1>Location Uploader</h1>
+          <p>Start sending your live location for the vehicle you're assigned to.</p>
 
-    <form id="transmitForm" onsubmit="event.preventDefault(); startSendingLocation();">
-      <label for="vehicleInput">Vehicle Number</label>
-      <input id="vehicleInput" placeholder="TN 38 AB 1234" />
+          <form id="transmitForm" onsubmit="event.preventDefault(); startSendingLocation();">
+            <label for="vehicleInput">Vehicle Number</label>
+            <input id="vehicleInput" placeholder="TN 38 AB 1234" />
 
-      <div id="vehicleInfo" style="margin-top:10px; display:none;">
-        <strong>Vehicle:</strong> <span id="vehicleDisplay"></span>
-        <button type="button" id="changeVehicleBtn" class="btn ghost" style="margin-left:8px;">Change Vehicle</button>
-      </div>
+            <div id="vehicleInfo" style="margin-top:10px; display:none;">
+              <strong>Vehicle:</strong> <span id="vehicleDisplay"></span>
+              <button type="button" id="changeVehicleBtn" class="btn ghost" style="margin-left:8px;">Change Vehicle</button>
+            </div>
 
-      <div style="margin-top:12px;">
-        <button type="button" id="sendOnceBtn" class="btn primary">Send Location Now</button>
-        <button type="submit" id="startBtn" class="btn primary">Start Sending</button>
-        <button type="button" id="stopBtn" class="btn ghost" style="display:none;">Stop Sending</button>
-      </div>
-    </form>
+            <div style="margin-top:12px; display:flex; gap:8px;">
+              <button type="button" id="sendOnceBtn" class="btn primary">Send Location Now</button>
+              <button type="submit" id="startBtn" class="btn primary">Start Sending</button>
+              <button type="button" id="stopBtn" class="btn ghost" style="display:none;">Stop Sending</button>
+            </div>
+          </form>
 
-    <div id="statusMessage" class="status"></div>
-    <div id="sendAnimation" style="display:none; margin-top:12px;">
-      <div style="display:flex; align-items:center; gap:8px;">
-        <div id="pulseDot" style="width:14px; height:14px; border-radius:50%; background:var(--brand-green); box-shadow:0 0 0 rgba(47,138,74,0.6); animation:pulse 1.6s infinite;"></div>
-        <div style="color:var(--brand-dark);">Sending live location...</div>
+          <div id="statusMessage" class="status"></div>
+          <div id="sendAnimation" style="display:none; margin-top:12px;">
+            <div style="display:flex; align-items:center; gap:8px;">
+              <div id="pulseDot" style="width:14px; height:14px; border-radius:50%; background:var(--brand-green); box-shadow:0 0 0 rgba(47,138,74,0.6); animation:pulse 1.6s infinite;"></div>
+              <div style="color:var(--brand-dark);">Sending live location...</div>
+            </div>
+          </div>
+
+          <style>
+            @keyframes pulse { 0% { box-shadow:0 0 0 0 rgba(47,138,74,0.6);} 70% { box-shadow:0 0 0 12px rgba(47,138,74,0);} 100% { box-shadow:0 0 0 0 rgba(47,138,74,0);} }
+          </style>
+        </div>
       </div>
     </div>
 
-    <style>
-      @keyframes pulse { 0% { box-shadow:0 0 0 0 rgba(47,138,74,0.6);} 70% { box-shadow:0 0 0 12px rgba(47,138,74,0);} 100% { box-shadow:0 0 0 0 rgba(47,138,74,0);} }
-    </style>
-  </div>
-
+  
   <script type="module" src="transmit.js"></script>
 </body>
 </html>

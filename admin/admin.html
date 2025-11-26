@@ -5,23 +5,71 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Admin - Access Control</title>
   <link rel="stylesheet" href="../admin.css" />
+  <style>
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{margin:0;padding:0;display:flex;flex-direction:column;min-height:100vh;font-family:Inter,system-ui,Arial}
+    .header{background:#2f8a4a;color:#fff;padding:12px 18px;display:flex;align-items:center;justify-content:space-between}
+    .brand{font-weight:700}
+    .main{flex:1;padding:20px}
+    .container{ max-width:920px; margin:12px auto; padding:18px; background:#fff; border-radius:10px; box-shadow:0 10px 30px rgba(15,23,42,0.06); border-left:4px solid #2f8a4a; padding-left:18px }
+    .container input{ padding:10px;border-radius:8px;border:1px solid #e6eef0;margin-right:8px }
+    .container button{ padding:10px 12px;border-radius:8px;border:none;cursor:pointer;background:#2f8a4a;color:#fff;transition: transform .12s ease, box-shadow .12s ease }
+    .container button:hover{ transform: translateY(-3px); box-shadow:0 10px 24px rgba(15,23,42,0.08) }
+    footer.footer{padding:14px;text-align:center;color:#6b7280}
+  </style>
 </head>
 <body>
-  <div class="container">
-    <h2>Admin Panel</h2>
-    <div id="loginSection">
-      <input type="email" id="adminEmail" placeholder="Admin Email" />
-      <input type="password" id="adminPassword" placeholder="Password" />
-      <button onclick="adminLogin()">Login</button>
-      <p id="loginMessage"></p>
+  <header class="header">
+    <div class="brand">Logistic Transport Tracker - Admin</div>
+    <div style="display:flex;gap:8px;align-items:center">
+      <a href="../index.html" style="color:#fff;text-decoration:none">Home</a>
+      <div style="position:relative">
+        <div class="avatar" id="userAvatar">A</div>
+        <div class="user-dropdown" id="userDropdown">
+          <a href="../index.html" style="display:block;padding:10px 12px;text-decoration:none;color:#111">Main</a>
+        </div>
+      </div>
     </div>
+  </header>
 
-    <div id="accessSection" style="display: none;">
-      <input type="email" id="userEmail" placeholder="Enter Email to Allow" />
-      <button onclick="addAccess()">Allow Access</button>
-      <p id="accessMessage"></p>
+  <main class="main">
+    <div class="container">
+      <h2>Admin Panel</h2>
+      <div id="loginSection">
+        <input type="email" id="adminEmail" placeholder="Admin Email" />
+        <input type="password" id="adminPassword" placeholder="Password" />
+        <button onclick="adminLogin()">Login</button>
+        <p id="loginMessage"></p>
+      </div>
+
+      <div id="accessSection" style="display: none;">
+        <input type="email" id="userEmail" placeholder="Enter Email to Allow" />
+        <button onclick="addAccess()">Allow Access</button>
+        <p id="accessMessage"></p>
+      </div>
     </div>
-  </div>
+  </main>
+
+  <footer class="footer">
+    <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
+      <div>
+        <strong>Logistic Transport Tracker</strong> &middot; Developer: <span id="devId">Sumithkanth23</span>
+        <div style="font-size:12px;color:#cbd5e1">Contact: <a href="mailto:contact@logistictransport.example">contact@logistictransport.example</a> &middot; Version 1.0</div>
+      </div>
+      <div style="font-size:13px;color:#cbd5e1">
+        <a href="../privacy.html">Privacy</a>
+        <span style="margin:0 8px">|</span>
+        <a href="../terms.html">Terms</a>
+        <span style="margin:0 8px">|</span>
+        <a href="mailto:contact@logistictransport.example">Contact Us</a>
+      </div>
+    </div>
+  </footer>
+
+  <script>
+    document.addEventListener('click', (e)=>{const dd=document.getElementById('userDropdown'); const av=document.getElementById('userAvatar'); if(!av) return; if(av.contains(e.target)){ dd.style.display = dd.style.display==='block'?'none':'block'; } else { if(dd) dd.style.display='none'; }});
+  </script>
 
   <script type="module" src="admin.js"></script>
 </body>
