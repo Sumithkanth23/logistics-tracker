@@ -1,0 +1,104 @@
+html, body {
+  margin: 0;
+  padding: 0;
+  height: 100%;
+  width: 100%;
+  font-family: Arial, sans-serif;
+}
+
+#map {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  width: 100%;
+}
+
+/* Top Floating UI */
+.map-ui {
+  position: absolute;
+  top: 20px;
+  left: 50%;
+  transform: translateX(-50%);
+  background: white;
+  padding: 12px 20px;
+  border-radius: 8px;
+  display: flex;
+  gap: 10px;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.15);
+  z-index: 10;
+  align-items: center;
+}
+
+.map-ui input {
+  padding: 10px;
+  border: 2px solid #2e8b57;
+  border-radius: 5px;
+  font-size: 14px;
+  min-width: 280px;
+}
+
+.map-ui button {
+  background-color: #2e8b57;
+  color: white;
+  border: none;
+  padding: 10px 16px;
+  font-size: 14px;
+  border-radius: 5px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.map-ui button:hover {
+  transform: scale(1.05);
+  background-color: #246c45;
+}
+
+.map-ui button:active {
+  transform: scale(0.98);
+  background-color: #1e5e37;
+}
+
+/* ETA message */
+.eta {
+  margin-left: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+/* Error message at bottom */
+.message {
+  position: absolute;
+  bottom: 20px;
+  width: 100%;
+  text-align: center;
+  font-size: 16px;
+  color: red;
+  font-weight: bold;
+  z-index: 10;
+}
+.user-dropdown {
+  position: absolute;
+  top: 20px;
+  right: 20px;
+  z-index: 9999;
+}
+
+#logoutBtn {
+  padding: 8px 14px;
+  background-color: #2e8b57;
+  color: white;
+  border: none;
+  border-radius: 6px;
+  cursor: pointer;
+  transition: 0.2s ease;
+}
+
+#logoutBtn:hover {
+  background-color: #246c45;
+  transform: scale(1.05);
+}
+
+#logoutBtn:active {
+  background-color: #1e5e37;
+  transform: scale(0.95);
+}

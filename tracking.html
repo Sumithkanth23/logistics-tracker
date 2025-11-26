@@ -1,0 +1,30 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>SIET Bus Tracker</title>
+
+  <link href="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.css" rel="stylesheet"/>
+  <link href="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.css" rel="stylesheet"/>
+
+  <!-- Custom CSS -->
+  <link rel="stylesheet" href="tracking.css" />
+</head>
+<body>
+  <div class="map-ui  ">
+    <input type="text" id="vehicleNumber" placeholder="Enter Vehicle Number (e.g. TN 38 AB 1234)" />
+    <button id="fetchLocationButton">Track</button>
+    <div id="eta" class="eta"></div>
+  </div>
+  <div id="map"></div>
+  <div id="message" class="message"></div>
+  <div class="user-dropdown">
+    <button id="logoutBtn">Logout</button>
+  </div>
+  <!-- Mapbox & Firebase -->
+  <script src="https://api.mapbox.com/mapbox-gl-js/v2.6.1/mapbox-gl.js"></script>
+  <script src="https://api.mapbox.com/mapbox-gl-js/plugins/mapbox-gl-directions/v4.1.1/mapbox-gl-directions.js"></script>
+  <script type="module" src="tracking.js"></script>
+</body>
+</html>

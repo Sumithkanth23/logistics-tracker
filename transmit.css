@@ -1,0 +1,41 @@
+body {
+  font-family: Arial, sans-serif;
+  text-align: center;
+  padding: 20px;
+}
+
+.container {
+  max-width: 600px;
+  margin: 20px auto;
+  padding: 20px;
+  background-color: #ffffff;
+  border-radius: 8px;
+  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+}
+
+input, button {
+  padding: 10px;
+  font-size: 16px;
+  border-radius: 5px;
+  border: 2px solid #2e8b57;
+  margin: 10px 0;
+  width: 80%;
+  max-width: 300px;
+}
+
+button {
+  background-color: #30995e;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+button:hover {
+  background-color: #267b48;
+}
+
+#statusMessage {
+  font-weight: bold;
+  color: green;
+  margin-top: 10px;
+}
