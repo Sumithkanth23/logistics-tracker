@@ -173,12 +173,29 @@ onAuthStateChanged(auth, (user) => {
           const res = await fetch(url);
           const j = await res.json();
           const place = (j && j.features && j.features[0] && j.features[0].place_name) ? j.features[0].place_name : '';
-          // reuse renderSelectedInfo to display address and timestamp (it expects a key and data)
-          await renderSelectedInfo('PIN_' + Math.round(Date.now()/1000), { label: 'Pinned location', timestamp: Date.now(), location: { latitude: lat, longitude: lng } });
-          const addrEl = document.getElementById('selectedAddress'); if (addrEl) addrEl.textContent = place || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+          // Display pinned location info without moving the bus marker
+          const panel = document.getElementById('selectedInfo');
+          const labelEl = document.getElementById('selectedLabel');
+          const addrEl = document.getElementById('selectedAddress');
+          const metaEl = document.getElementById('selectedMeta');
+          if (panel && labelEl && addrEl && metaEl) {
+            panel.style.display = 'flex';
+            labelEl.textContent = 'Pinned location';
+            addrEl.textContent = place || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            metaEl.textContent = `Clicked at: ${new Date().toLocaleString()}`;
+          }
         } catch (err) {
           console.warn('Reverse geocode failed for pin', err);
-          await renderSelectedInfo('PIN', { label: 'Pinned location', timestamp: Date.now(), location: { latitude: lat, longitude: lng } });
+          const panel = document.getElementById('selectedInfo');
+          const labelEl = document.getElementById('selectedLabel');
+          const addrEl = document.getElementById('selectedAddress');
+          const metaEl = document.getElementById('selectedMeta');
+          if (panel && labelEl && addrEl && metaEl) {
+            panel.style.display = 'flex';
+            labelEl.textContent = 'Pinned location';
+            addrEl.textContent = `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
+            metaEl.textContent = `Clicked at: ${new Date().toLocaleString()}`;
+          }
         }
       });
     } catch (err) {
@@ -190,7 +207,7 @@ onAuthStateChanged(auth, (user) => {
   }
 });
 
-// Render selected vehicle info (address, timestamp)
+// Render selected vehicle info (address, timestamp) - only for vehicles, not pins
 async function renderSelectedInfo(key, data) {
   const panel = document.getElementById('selectedInfo');
   const labelEl = document.getElementById('selectedLabel');
@@ -209,7 +226,11 @@ async function renderSelectedInfo(key, data) {
   // reverse geocode if lat/lng present
   const ll = extractLatLng(data);
   if (ll) {
-    // Move marker and center map to this location (useful for Firestore fallback where RTDB live updates are not available)
+    // Hide click marker when showing vehicle location
+    if (clickMarker) {
+      try { clickMarker.remove(); clickMarker = null; } catch(e){}
+    }
+    // Move bus marker to vehicle location only
     try {
       // Ensure marker exists
       if (!marker) {
@@ -221,7 +242,7 @@ async function renderSelectedInfo(key, data) {
       if (marker && marker.getElement) {
         marker.getElement().style.display = 'block';
       }
-      console.log('Marker updated in renderSelectedInfo:', ll.latitude, ll.longitude);
+      console.log('Bus marker updated for vehicle:', ll.latitude, ll.longitude);
       if (map && typeof map.flyTo === 'function') {
         map.flyTo({ center: [ll.longitude, ll.latitude], zoom: 14 });
       }
