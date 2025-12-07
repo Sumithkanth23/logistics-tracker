@@ -20,14 +20,22 @@
     },
     "vehicles": {
       "$vehicleKey": {
-        ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || data.child('owner').val() === auth.uid)",
-        ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || data.child('owner').val() === auth.uid || !data.exists())"
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || data.child('owner').val() === auth.uid || data.child('driverId').val() === auth.uid)",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || data.child('owner').val() === auth.uid || data.child('driverId').val() === auth.uid || !data.exists())",
+        "location": {
+          ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid || root.child('vehicles').child($vehicleKey).child('driverId').val() === auth.uid)",
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid || root.child('vehicles').child($vehicleKey).child('driverId').val() === auth.uid)"
+        }
       }
     },
     "busLocation": {
       "$vehicleKey": {
-        ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid)",
-        ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid)"
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid || root.child('vehicles').child($vehicleKey).child('driverId').val() === auth.uid)",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid || root.child('vehicles').child($vehicleKey).child('driverId').val() === auth.uid)",
+        "location": {
+          ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid || root.child('vehicles').child($vehicleKey).child('driverId').val() === auth.uid)",
+          ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid || root.child('vehicles').child($vehicleKey).child('driverId').val() === auth.uid)"
+        }
       }
     }
   }

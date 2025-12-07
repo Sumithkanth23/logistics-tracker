@@ -96,12 +96,19 @@ function sanitizeVehicleKey(vehicleNo) {
 }
 
 function extractLatLng(data) {
-  if (!data) return null;
+  if (!data) {
+    console.log('extractLatLng: no data');
+    return null;
+  }
   const latCandidates = [data?.location?.latitude, data?.location?.lat, data?.latitude, data?.lat, data?.coords?.latitude, data?.coords?.lat];
   const lngCandidates = [data?.location?.longitude, data?.location?.lng, data?.longitude, data?.lng, data?.coords?.longitude, data?.coords?.lng];
   const lat = latCandidates.find(v => typeof v === 'number');
   const lng = lngCandidates.find(v => typeof v === 'number');
-  if (lat !== undefined && lng !== undefined && lat !== null && lng !== null) return { latitude: lat, longitude: lng };
+  if (lat !== undefined && lng !== undefined && lat !== null && lng !== null) {
+    console.log('extractLatLng found:', { latitude: lat, longitude: lng });
+    return { latitude: lat, longitude: lng };
+  }
+  console.log('extractLatLng: no valid coordinates found in data:', data);
   return null;
 }
 
@@ -109,10 +116,10 @@ function createBusMarker() {
   const el = document.createElement('div');
   el.style.width = '44px';
   el.style.height = '44px';
-  el.style.backgroundImage = "url('https://img.icons8.com/ios/452/bus.png')";
-  el.style.backgroundSize = 'contain';
-  el.style.backgroundRepeat = 'no-repeat';
   el.style.transform = 'translate(-22px, -22px)';
+  el.innerHTML = `<svg width="44" height="44" viewBox="0 0 24 24" fill="#2f8a4a" xmlns="http://www.w3.org/2000/svg">
+    <path d="M4 16c0 .88.39 1.67 1 2.22V20c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1h8v1c0 .55.45 1 1 1h1c.55 0 1-.45 1-1v-1.78c.61-.55 1-1.34 1-2.22V6c0-3.5-3.58-4-8-4s-8 .5-8 4v10zm3.5 1c-.83 0-1.5-.67-1.5-1.5S6.67 14 7.5 14s1.5.67 1.5 1.5S8.33 17 7.5 17zm9 0c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5zm1.5-6H6V6h12v5z"/>
+  </svg>`;
   return el;
 }
 
@@ -204,11 +211,17 @@ async function renderSelectedInfo(key, data) {
   if (ll) {
     // Move marker and center map to this location (useful for Firestore fallback where RTDB live updates are not available)
     try {
-      if (marker && typeof marker.setLngLat === 'function') {
+      // Ensure marker exists
+      if (!marker) {
+        marker = new mapboxgl.Marker({ element: createBusMarker() }).setLngLat([ll.longitude, ll.latitude]).addTo(map);
+      } else if (typeof marker.setLngLat === 'function') {
         marker.setLngLat([ll.longitude, ll.latitude]);
-          // make sure marker is visible
-          try { if (marker.getElement) marker.getElement().style.display = 'block'; } catch(e){}
       }
+      // make sure marker is visible
+      if (marker && marker.getElement) {
+        marker.getElement().style.display = 'block';
+      }
+      console.log('Marker updated in renderSelectedInfo:', ll.latitude, ll.longitude);
       if (map && typeof map.flyTo === 'function') {
         map.flyTo({ center: [ll.longitude, ll.latitude], zoom: 14 });
       }
@@ -255,6 +268,7 @@ async function loadVehicleList(uid) {
     const snap = await getDocs(q);
     container.innerHTML = '';
     if (snap && snap.size) {
+      console.log(`Found ${snap.size} vehicles for user ${uid}`);
       snap.forEach(d => {
         const k = d.id;
         const v = d.data() || {};
@@ -276,6 +290,8 @@ async function loadVehicleList(uid) {
       // remove skeleton state
       container.classList.remove('skeleton-loading');
       return;
+    } else {
+      console.log('No vehicles found in Firestore for user', uid);
     }
   } catch (fsqErr) {
     console.warn('Firestore owner query failed, falling back to RTDB mapping', fsqErr);
@@ -289,10 +305,11 @@ async function loadVehicleList(uid) {
     if (mapSnap && mapSnap.exists()) {
       const keys = Object.keys(mapSnap.val() || {});
       if (!keys.length) {
-        container.innerHTML = '<div>No vehicles mapped to your account.</div>';
+        container.innerHTML = '<div style="padding:15px;text-align:center;color:#666;">No vehicles mapped to your account.<br/><a href="create_vehicle.html" style="color:#2f8a4a;text-decoration:underline;">Create a vehicle</a></div>';
         container.classList.remove('skeleton-loading');
         return;
       }
+      console.log(`Found ${keys.length} vehicles in RTDB mapping for user ${uid}`);
       // For each mapped key, read metadata from RTDB vehicles/{key} or busLocation/{key}
       for (const k of keys) {
         try {
@@ -323,11 +340,12 @@ async function loadVehicleList(uid) {
       container.classList.remove('skeleton-loading');
       return;
     }
-    container.innerHTML = '<div>No vehicles found for your account.</div>';
+    console.log('No RTDB vehicle mapping found for user', uid);
+    container.innerHTML = '<div style="padding:15px;text-align:center;color:#666;">No vehicles found for your account.<br/><a href="create_vehicle.html" style="color:#2f8a4a;text-decoration:underline;">Create your first vehicle</a></div>';
     container.classList.remove('skeleton-loading');
   } catch (err) {
     console.error('users/{uid}/vehicles mapping read error (RTDB):', err && err.code, err && err.message);
-    container.innerHTML = `<div>RTDB read error: ${err && err.code || err}</div>`;
+    container.innerHTML = `<div style="padding:15px;text-align:center;color:#c41e3a;">Error loading vehicles: ${err && err.code || err}<br/>Please check your database permissions.</div>`;
     container.classList.remove('skeleton-loading');
   }
 }
@@ -386,8 +404,18 @@ async function watchVehicle(vehicleKey) {
     if (data) {
       const ll = extractLatLng(data);
       if (ll) {
-        marker.setLngLat([ll.longitude, ll.latitude]);
+        // Ensure marker exists and is visible
+        if (!marker) {
+          marker = new mapboxgl.Marker({ element: createBusMarker() }).setLngLat([ll.longitude, ll.latitude]).addTo(map);
+        } else {
+          marker.setLngLat([ll.longitude, ll.latitude]);
+        }
+        // Make marker visible
+        if (marker && marker.getElement) {
+          marker.getElement().style.display = 'block';
+        }
         map.flyTo({ center: [ll.longitude, ll.latitude], zoom: 14 });
+        console.log('Marker positioned at:', ll.latitude, ll.longitude);
         // If on mobile, hide sidebar to maximize map view
         try {
           const rightSidebar = document.getElementById('rightSidebar');
@@ -403,7 +431,20 @@ async function watchVehicle(vehicleKey) {
         const d2 = snap2.val();
         if (d2) {
           const ll2 = extractLatLng(d2);
-          if (ll2) { marker.setLngLat([ll2.longitude, ll2.latitude]); map.flyTo({ center: [ll2.longitude, ll2.latitude], zoom: 14 }); }
+          if (ll2) {
+            // Ensure marker exists and is visible
+            if (!marker) {
+              marker = new mapboxgl.Marker({ element: createBusMarker() }).setLngLat([ll2.longitude, ll2.latitude]).addTo(map);
+            } else {
+              marker.setLngLat([ll2.longitude, ll2.latitude]);
+            }
+            // Make marker visible
+            if (marker && marker.getElement) {
+              marker.getElement().style.display = 'block';
+            }
+            map.flyTo({ center: [ll2.longitude, ll2.latitude], zoom: 14 });
+            console.log('Marker positioned at (fallback):', ll2.latitude, ll2.longitude);
+          }
           await renderSelectedInfo(key, d2);
         } else {
           console.warn('No data for', key);
@@ -412,9 +453,9 @@ async function watchVehicle(vehicleKey) {
       }, (err) => { console.warn('Fallback read error', err); });
     }
   }, (err) => {
-    console.error('RTDB read error for', path, err && err.code);
-    const container = document.getElementById('vehicleCardsSidebar');
-    if (err && (err.code === 'permission-denied' || (err.message && err.message.toLowerCase().includes('permission')))) {
+    console.error('RTDB read error for', path, err && err.code, err && err.message);
+    if (err && (err.code === 'permission-denied' || err.code === 'PERMISSION_DENIED' || (err.message && err.message.toLowerCase().includes('permission')))) {
+      console.warn('Permission denied for RTDB path', path, '- attempting Firestore fallback');
       // Attempt to load vehicle metadata from Firestore for this key
       (async () => {
         try {
@@ -422,18 +463,44 @@ async function watchVehicle(vehicleKey) {
           const d = await getDoc(docRef);
           if (d && d.exists()) {
             const v = d.data() || {};
+            console.log('Successfully loaded vehicle metadata from Firestore:', v);
             await renderSelectedInfo(key, v);
-            if (container) container.innerHTML = `<div>Showing metadata from Firestore (live location not available due to RTDB permissions).</div>`;
+            const panel = document.getElementById('selectedInfo');
+            const metaEl = document.getElementById('selectedMeta');
+            if (panel && metaEl) {
+              panel.style.display = 'flex';
+              metaEl.textContent = (metaEl.textContent || '') + ' (Static location - live tracking unavailable. Please redeploy database rules.)';
+            }
           } else {
-            if (container) container.innerHTML = `<div>No vehicle data found in Firestore for ${key}</div>`;
+            console.warn('Vehicle not found in Firestore:', key);
+            const panel = document.getElementById('selectedInfo');
+            if (panel) {
+              panel.style.display = 'flex';
+              document.getElementById('selectedLabel').textContent = 'Vehicle Not Found';
+              document.getElementById('selectedAddress').textContent = 'This vehicle does not exist or you do not have permission to view it.';
+              document.getElementById('selectedMeta').textContent = 'Please ensure the vehicle is properly created and database rules are deployed.';
+            }
           }
         } catch (fsErr) {
           console.error('Firestore fallback failed for', key, fsErr);
-          if (container) container.innerHTML = `<div>Permission error and Firestore fallback failed: ${fsErr && fsErr.message}</div>`;
+          const panel = document.getElementById('selectedInfo');
+          if (panel) {
+            panel.style.display = 'flex';
+            document.getElementById('selectedLabel').textContent = 'Permission Error';
+            document.getElementById('selectedAddress').textContent = 'Unable to load vehicle data. Database rules may need to be redeployed.';
+            document.getElementById('selectedMeta').textContent = `Error: ${fsErr && fsErr.message || fsErr}`;
+          }
         }
       })();
     } else {
-      if (container) container.innerHTML = `<div>Permission error: ${err && err.code}</div>`;
+      console.error('Unexpected RTDB error:', err);
+      const panel = document.getElementById('selectedInfo');
+      if (panel) {
+        panel.style.display = 'flex';
+        document.getElementById('selectedLabel').textContent = 'Connection Error';
+        document.getElementById('selectedAddress').textContent = 'Unable to connect to the database.';
+        document.getElementById('selectedMeta').textContent = `Error: ${err && err.code || err}`;
+      }
     }
   });
   currentUnsub = () => { try { listener(); } catch(e){} };
