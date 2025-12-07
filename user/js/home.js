@@ -1,6 +1,6 @@
 import { initializeApp } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-app.js';
 import { getAuth, onAuthStateChanged, signOut } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-auth.js';
-import { getFirestore, doc, setDoc, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
+import { getFirestore, doc, setDoc, getDoc, collection, onSnapshot } from 'https://www.gstatic.com/firebasejs/11.0.1/firebase-firestore.js';
 
 const firebaseConfig = {
   apiKey: "AIzaSyCaNsjn5XPnr7P6ufN10T1Ej10mNFAcBP4",
@@ -74,6 +74,8 @@ onAuthStateChanged(auth, (user) => {
 });
 
 function renderCardsFromData(dataObj) {
+  // remove loading state
+  if (vehicleCards) vehicleCards.classList.remove('skeleton-loading');
   vehicleCards.innerHTML = '';
   if (!dataObj || Object.keys(dataObj).length === 0) {
     vehicleCards.innerHTML = '<div class="card">No vehicles found. Click New Vehicle to add one.</div>';
@@ -103,16 +105,17 @@ function renderCardsFromData(dataObj) {
     const card = document.createElement('div');
     card.className = 'card';
     const h = document.createElement('h4'); h.textContent = label; card.appendChild(h);
-    const small = document.createElement('small'); small.textContent = `ID: ${v && v.id ? v.id : key}`; card.appendChild(small);
-    // show description if available in vehicle doc
-    if (v && v.description) {
-      const desc = document.createElement('p');
-      desc.className = 'desc';
-      desc.textContent = v.description;
-      desc.style.margin = '8px 0 0';
-      desc.style.color = '#6b7280';
-      desc.style.fontSize = '13px';
-      card.appendChild(desc);
+    // show description (preferred) or fallback to ID
+    const small = document.createElement('small');
+    small.textContent = v && (v.description || v.desc) ? (v.description || v.desc) : `ID: ${v && v.id ? v.id : key}`;
+    small.style.display = 'block';
+    small.style.marginTop = '6px';
+    small.style.color = '#6b7280';
+    small.style.fontSize = '13px';
+    card.appendChild(small);
+    // show assigned driver if present
+    if (v && v.driverId) {
+      const drv = document.createElement('div'); drv.style.marginTop = '8px'; drv.style.fontSize = '13px'; drv.style.color = '#374151'; drv.textContent = `Driver: ${v.driverId}`; card.appendChild(drv);
     }
     const br = document.createElement('div'); br.style.marginTop = '10px'; card.appendChild(br);
 
@@ -130,8 +133,25 @@ function renderCardsFromData(dataObj) {
       window.location.href = `vehicle.html?vehicle=${encodeURIComponent(key)}`;
     });
     actions.appendChild(detailsBtn);
+    // Assign driver button
+    const assignBtn = document.createElement('button'); assignBtn.textContent = 'Assign Driver'; assignBtn.className = 'secondary';
+    assignBtn.addEventListener('click', async () => {
+      try {
+        const input = prompt('Enter Driver ID to assign to this vehicle (leave blank to cancel):', (v && v.driverId) ? v.driverId : '');
+        if (input === null) return; // cancelled
+        const trimmed = (input || '').trim();
+        if (!trimmed) { alert('No driver ID entered; assignment cancelled.'); return; }
+        await assignDriver(key, trimmed);
+        alert(`Driver ${trimmed} assigned to ${key}`);
+      } catch (err) {
+        console.error('Assign driver failed', err);
+        alert('Failed to assign driver. See console for details.');
+      }
+    });
+    actions.appendChild(assignBtn);
     card.appendChild(actions);
 
+    card.classList.add('fade-in');
     vehicleCards.appendChild(card);
   });
   if (activeVehiclesEl) activeVehiclesEl.textContent = String(activeCount);
@@ -141,6 +161,8 @@ function renderCardsFromData(dataObj) {
 function loadUserVehicles() {
   if (!currentUid) return;
   const userVehiclesCol = collection(db, 'users', currentUid, 'vehicles');
+  // show skeleton while initial data loads
+  if (vehicleCards) vehicleCards.classList.add('skeleton-loading');
   onSnapshot(userVehiclesCol, (snap) => {
     const data = {};
     snap.forEach(docSnap => { data[docSnap.id] = docSnap.data(); });
@@ -173,4 +195,51 @@ if (userAvatar && userDropdown) {
     userDropdown.style.display = userDropdown.style.display === 'block' ? 'none' : 'block';
   });
   document.addEventListener('click', () => { if (userDropdown) userDropdown.style.display = 'none'; });
+}
+
+// Assign driver helper: updates vehicle document and creates a user->driver mapping
+async function assignDriver(vehicleKey, driverId) {
+  if (!currentUid) throw new Error('Not authenticated');
+  const vKey = vehicleKey;
+  // Validate ownership before allowing assignment
+  const vehicleRef = doc(db, 'vehicles', vKey);
+  const vehicleSnap = await getDoc(vehicleRef);
+  if (vehicleSnap.exists()) {
+    const vehicleData = vehicleSnap.data();
+    if (vehicleData.owner && vehicleData.owner !== currentUid) {
+      throw new Error('You can only assign drivers to vehicles you own.');
+    }
+  }
+  // update vehicles/{key}
+  await setDoc(doc(db, 'vehicles', vKey), { driverId: driverId, driverAssignedAt: Date.now(), owner: currentUid }, { merge: true });
+  
+  // Get vehicle label for driver record
+  const vSnap = await getDoc(vehicleRef);
+  const vehicleLabel = vSnap.exists() ? (vSnap.data().label || vKey) : vKey;
+  
+  // update users/{uid}/drivers/{driverId}
+  try {
+    await setDoc(doc(db, 'users', currentUid, 'drivers', driverId), { vehicle: vKey, vehicleLabel: vehicleLabel, assignedAt: Date.now() }, { merge: true });
+  } catch (e) {
+    console.warn('Failed to write users/{uid}/drivers mapping', e);
+  }
+  
+  // Write to root-level drivers collection
+  try {
+    await setDoc(doc(db, 'drivers', driverId), { 
+      vehicle: vKey, 
+      vehicleLabel: vehicleLabel,
+      owner: currentUid, 
+      assignedAt: Date.now(),
+      updatedAt: Date.now() 
+    }, { merge: true });
+  } catch (e) {
+    console.warn('Failed to write root drivers collection', e);
+  }
+  // reflect assignment in user's vehicle subcollection as well
+  try {
+    await setDoc(doc(db, 'users', currentUid, 'vehicles', vKey), { driverId: driverId, updatedAt: Date.now() }, { merge: true });
+  } catch (e) {
+    console.warn('Failed to update users/{uid}/vehicles entry with driverId', e);
+  }
 }

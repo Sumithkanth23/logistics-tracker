@@ -29,6 +29,20 @@
     .btn.primary{ background:var(--brand-green); color:#fff }
     .btn.ghost{ background:#f6fbf6; color:var(--brand-dark); border:1px solid rgba(47,138,74,0.06) }
     .status { margin-top:12px; color:var(--muted) }
+    /* Responsive: keep forms readable on mobile */
+    @media (max-width:720px){
+      .container{ margin:12px; padding:14px }
+      .form-wrap{ padding:0 }
+      .actions{ flex-direction:column; gap:8px }
+      .actions .btn{ width:100% }
+    }
+
+    /* Skeleton + transitions */
+    .skeleton-loading .form-wrap{ position:relative; overflow:hidden }
+    .skeleton-loading .form-wrap::after{ content:''; position:absolute; left:-140px; top:0; width:120px; height:100%; background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.6), rgba(255,255,255,0)); animation:shimmer 1.2s infinite }
+    @keyframes shimmer{ 100%{ transform:translateX(360px) } }
+    .fade-in{ animation:fadeIn .28s ease both }
+    @keyframes fadeIn{ from{ opacity:0; transform:translateY(6px) } to{ opacity:1; transform:none } }
   </style>
 </head>
 <body>
@@ -50,6 +64,8 @@
           <input id="vehicleNumber" name="vehicleNumber" placeholder="TN 38 AB 1234" required />
           <label for="vehicleDesc">Optional Description</label>
           <input id="vehicleDesc" name="vehicleDesc" placeholder="Bus route, model or notes" />
+          <label for="driverId">Assign Driver (optional)</label>
+          <input id="driverId" name="driverId" placeholder="Driver ID or employee number" />
           <div class="actions">
             <button type="submit" id="createBtn" class="btn primary">Create Vehicle</button>
             <button type="button" id="cancelBtn" class="btn ghost">Cancel</button>
@@ -62,15 +78,24 @@
   <footer class="footer" style="background:#374151;color:#e5e7eb;">
     <div class="inner" style="flex-wrap:wrap;">
       <div>
-        <strong>Logistic Transport Tracker</strong> &middot; Developer: <span id="devId">Sumithkanth23</span>
-        <div style="font-size:12px;color:#cbd5e1">Contact: <a href="mailto:sumithkanth810@gmail.com" style="color:#e5e7eb">sumithkanth810@gmail.com</a> &middot; Version 1.0</div>
+        <strong>Developed by</strong><br>
+        <div style="font-size:12px;color:inherit;display:inline-flex;gap:8px;align-items:center;margin-top:4px">
+          <a href="https://www.linkedin.com/in/sumithkanth-gunasekaran-aa9a93225" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 5 3.88 6.1 2.38 6.1S-.22 5 .98 3.5C2.38 2 4.98 2 4.98 3.5zM.5 8.99h4.97V24H.5zM9.5 8.99h4.77v2.07h.07c.66-1.25 2.28-2.57 4.7-2.57 5.03 0 5.96 3.31 5.96 7.61V24h-4.98v-7.18c0-1.71-.03-3.9-2.38-3.9-2.38 0-2.74 1.86-2.74 3.79V24H9.5z"/></svg>
+            LinkedIn
+          </a>
+          <a href="mailto:sumithkanth810@gmail.com" aria-label="Email" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13.065L.5 4.5V20a2 2 0 0 0 2 2h19a2 2 0 0 0 2-2V4.5L12 13.065zM12 .5L0 10.5 2.5 12 12 5.435 21.5 12 24 10.5z"/></svg>
+            sumithkanth810@gmail.com
+          </a>
+        </div>
       </div>
-      <div style="font-size:13px;color:#e5e7eb">
-        <a href="../privacy.html" style="color:#e5e7eb">Privacy</a>
+      <div style="font-size:13px;color:inherit">
+        <a href="../privacy.html" style="color:inherit">Privacy</a>
         <span style="margin:0 8px">|</span>
-        <a href="../terms.html" style="color:#e5e7eb">Terms</a>
+        <a href="../terms.html" style="color:inherit">Terms</a>
         <span style="margin:0 8px">|</span>
-        <a href="mailto:sumithkanth810@gmail.com" style="color:#e5e7eb">Contact Us</a>
+        <a href="mailto:sumithkanth810@gmail.com" style="color:inherit">Contact Us</a>
       </div>
     </div>
   </footer>

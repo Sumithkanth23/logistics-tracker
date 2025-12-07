@@ -18,31 +18,59 @@ function sanitizeKey(v){
   return v.trim().toUpperCase().replace(/\s+/g,'_').replace(/[.#$\[\]]/g,'_');
 }
 
-const input = document.getElementById('vehicleNo');
+const driverIdInput = document.getElementById('driverId');
+const vehicleInput = document.getElementById('vehicleNo');
 const btn = document.getElementById('loginBtn');
 const status = document.getElementById('status');
 
 btn.addEventListener('click', async () => {
   status.textContent = '';
-  const raw = input.value || '';
-  if (!raw.trim()) { status.textContent = 'Please enter a vehicle number.'; return; }
-  const key = sanitizeKey(raw);
-  status.textContent = 'Checking vehicle...';
+  const driverId = (driverIdInput.value || '').trim();
+  const vehicleRaw = vehicleInput.value || '';
+  
+  if (!driverId) { 
+    status.textContent = 'Please enter your driver ID.'; 
+    return; 
+  }
+  if (!vehicleRaw.trim()) { 
+    status.textContent = 'Please enter a vehicle ID.'; 
+    return; 
+  }
+  
+  const vehicleKey = sanitizeKey(vehicleRaw);
+  status.textContent = 'Validating driver and vehicle...';
+  
   try {
-    const ref = doc(db, 'vehicles', key);
+    const ref = doc(db, 'vehicles', vehicleKey);
     const snap = await getDoc(ref);
+    
     if (!snap.exists()) {
-      status.textContent = 'Vehicle not found. Ask administrator to add the vehicle.';
+      status.textContent = 'Vehicle not found. Please check the vehicle ID.';
       return;
     }
-    // save session
-    localStorage.setItem('driverVehicle', key);
-    status.textContent = 'Verified. Redirecting to driver transmit page...';
+    
+    const vehicleData = snap.data();
+    
+    // Validate that the driver ID matches the assigned driver for this vehicle
+    if (!vehicleData.driverId) {
+      status.textContent = 'This vehicle has no driver assigned. Contact the administrator.';
+      return;
+    }
+    
+    if (vehicleData.driverId !== driverId) {
+      status.textContent = 'Driver ID does not match the assigned driver for this vehicle.';
+      return;
+    }
+    
+    // Both driver ID and vehicle ID match - save session
+    localStorage.setItem('driverVehicle', vehicleKey);
+    localStorage.setItem('driverId', driverId);
+    status.textContent = 'Login successful! Redirecting to driver transmit page...';
     setTimeout(() => {
-      window.location.href = `transmit.html?vehicle=${encodeURIComponent(key)}`;
+      window.location.href = `transmit.html?vehicle=${encodeURIComponent(vehicleKey)}`;
     }, 500);
   } catch (err) {
     console.error('Driver login error', err);
-    status.textContent = 'Error checking vehicle (see console).';
+    status.textContent = 'Error during login (see console).';
   }
 });

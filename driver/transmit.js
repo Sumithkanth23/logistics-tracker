@@ -41,6 +41,28 @@ function getSelectedVehicleNo() {
 signInAnonymously(auth).catch((err) => console.warn('Firebase anonymous sign-in failed:', err && err.message));
 onAuthStateChanged(auth, (user) => console.log('Auth state (driver):', user ? { uid: user.uid, isAnonymous: user.isAnonymous } : null));
 
+// Driver logout handler
+const driverLogoutBtn = document.getElementById('driverLogoutBtn');
+if (driverLogoutBtn) {
+  driverLogoutBtn.addEventListener('click', async () => {
+    // Stop any active location sending
+    if (intervalId) {
+      clearInterval(intervalId);
+      intervalId = null;
+    }
+    // Clear session data
+    localStorage.removeItem('driverVehicle');
+    localStorage.removeItem('driverId');
+    // Sign out and redirect
+    try {
+      await signOut(auth);
+    } catch (err) {
+      console.warn('Sign out error:', err);
+    }
+    window.location.href = '../index.html';
+  });
+}
+
 // If a vehicle is provided in the URL or localStorage, prefill input and check existence
 document.addEventListener('DOMContentLoaded', async () => {
   const params = new URLSearchParams(window.location.search);
@@ -101,7 +123,7 @@ async function triggerVerifyVehicle() {
     return true;
   } catch (err) {
     console.error('vehicle verify failed', err);
-    if (status) { status.textContent = 'Verification failed. See console.'; status.style.color = 'red'; }
+    if (status) { status.textContent = 'Verification failed.'; status.style.color = 'red'; }
     return false;
   }
 }
@@ -158,7 +180,7 @@ window.sendLocationOnce = function () {
         } catch (rtdbErr) {
           console.warn('RTDB write failed (one-time)', rtdbErr);
         }
-        status.textContent = '✅ Location sent to Firebase (one-time)'; status.style.color = 'green';
+        status.textContent = 'Location Transmitted'; status.style.color = 'green';
       } catch (err) {
         console.error('Error updating location', err); status.textContent = '❌ ' + (err && err.message || 'Error'); status.style.color = 'red';
       }
@@ -198,7 +220,7 @@ window.startSendingLocation = function () {
         } catch (rtdbErr) {
           console.warn('RTDB write failed (interval)', rtdbErr);
         }
-        status.textContent = '✅ Location sent to Firestore'; status.style.color = 'green';
+        status.textContent = 'Started live location transmission...'; status.style.color = 'green';
       } catch (err) {
         console.error('Error updating location', err); status.textContent = '❌ ' + (err && err.message || 'Error'); status.style.color = 'red';
       }
@@ -229,3 +251,15 @@ document.addEventListener('DOMContentLoaded', () => {
     if (input) input.value = stored.replace(/_/g, ' ');
   }
 });
+
+// Add skeleton toggle for driver page while verifying vehicle
+async function verifyAndShowSkeleton(key) {
+  const container = document.querySelector('.form-wrap');
+  if (container) container.classList.add('skeleton-loading');
+  try {
+    const snap = await getDoc(doc(database, 'vehicles', key));
+    return snap;
+  } finally {
+    if (container) container.classList.remove('skeleton-loading');
+  }
+}

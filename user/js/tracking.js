@@ -14,8 +14,16 @@ const map = new mapboxgl.Map({
   zoom: 13
 });
 
-// Create marker (hidden initially)
-const marker = new mapboxgl.Marker({ element: createBusMarker() }).setLngLat([0,0]).addTo(map);
+// Create marker after map is ready. We'll initialize to null and add it on load so
+// the marker element is correctly attached to the map lifecycle.
+let marker = null;
+map.on('load', () => {
+  try {
+    marker = new mapboxgl.Marker({ element: createBusMarker() }).setLngLat([0,0]).addTo(map);
+    // start hidden until a vehicle is selected
+    if (marker && marker.getElement) marker.getElement().style.display = 'none';
+  } catch (e) { console.warn('Marker init failed', e); }
+});
 
 // Firebase config (same as other modules)
 const firebaseConfig = {
@@ -110,9 +118,11 @@ function createBusMarker() {
 
 let currentUnsub = null;
 let clickMarker = null; // marker for manual pins placed by clicking the map
+let currentUserUid = null; // store current user ID for ownership checks
 
 // Require authentication: only signed-in users may view vehicles
 onAuthStateChanged(auth, (user) => {
+  currentUserUid = user ? user.uid : null;
   if (user) {
     const params = new URLSearchParams(window.location.search);
     const vehicle = params.get('vehicle');
@@ -121,6 +131,18 @@ onAuthStateChanged(auth, (user) => {
     }
     // load other vehicles owned by this user to display in right sidebar
     loadVehicleList(user.uid);
+    // mobile: show sidebar toggle and hide sidebar by default
+    try {
+      const sidebarToggle = document.getElementById('sidebarToggle');
+      const rightSidebar = document.getElementById('rightSidebar');
+      if (sidebarToggle && rightSidebar) {
+        if (window.innerWidth <= 720) { rightSidebar.style.display = 'none'; sidebarToggle.style.display = 'block'; }
+        sidebarToggle.addEventListener('click', () => {
+          if (rightSidebar.style.display === 'none' || getComputedStyle(rightSidebar).display === 'none') { rightSidebar.style.display = 'block'; sidebarToggle.textContent = 'Close'; }
+          else { rightSidebar.style.display = 'none'; sidebarToggle.textContent = 'Vehicles'; }
+        });
+      }
+    } catch(e) {}
     // allow clicking the map to drop a pin
     try {
       map.on('click', async (e) => {
@@ -144,7 +166,6 @@ onAuthStateChanged(auth, (user) => {
           const res = await fetch(url);
           const j = await res.json();
           const place = (j && j.features && j.features[0] && j.features[0].place_name) ? j.features[0].place_name : '';
-          const data = { label: 'Pinned location', desc: '', timestamp: Date.now(), place_name: place, latitude: lat, longitude: lng };
           // reuse renderSelectedInfo to display address and timestamp (it expects a key and data)
           await renderSelectedInfo('PIN_' + Math.round(Date.now()/1000), { label: 'Pinned location', timestamp: Date.now(), location: { latitude: lat, longitude: lng } });
           const addrEl = document.getElementById('selectedAddress'); if (addrEl) addrEl.textContent = place || `${lat.toFixed(5)}, ${lng.toFixed(5)}`;
@@ -185,6 +206,8 @@ async function renderSelectedInfo(key, data) {
     try {
       if (marker && typeof marker.setLngLat === 'function') {
         marker.setLngLat([ll.longitude, ll.latitude]);
+          // make sure marker is visible
+          try { if (marker.getElement) marker.getElement().style.display = 'block'; } catch(e){}
       }
       if (map && typeof map.flyTo === 'function') {
         map.flyTo({ center: [ll.longitude, ll.latitude], zoom: 14 });
@@ -198,6 +221,18 @@ async function renderSelectedInfo(key, data) {
       const j = await res.json();
       const place = (j && j.features && j.features[0] && j.features[0].place_name) ? j.features[0].place_name : '';
       addrEl.textContent = place || `${ll.latitude.toFixed(5)}, ${ll.longitude.toFixed(5)}`;
+      // attach a popup to the marker with the label/address
+      try {
+        if (marker) {
+          const popupText = place || labelEl.textContent || '';
+          const popup = new mapboxgl.Popup({ offset: 25 }).setText(popupText);
+          marker.setPopup(popup);
+          // ensure marker element visible
+          if (marker.getElement) marker.getElement().style.display = 'block';
+          // open popup
+          try { marker.togglePopup(); } catch(e){}
+        }
+      } catch(e) { console.warn('Marker popup failed', e); }
     } catch (err) {
       addrEl.textContent = `${ll.latitude.toFixed(5)}, ${ll.longitude.toFixed(5)}`;
     }
@@ -210,6 +245,8 @@ async function renderSelectedInfo(key, data) {
 async function loadVehicleList(uid) {
   const container = document.getElementById('vehicleCardsSidebar');
   if (!container) return;
+  // show skeleton while fetching
+  container.classList.add('skeleton-loading');
   container.innerHTML = '<div>Loading your vehicles...</div>';
 
   // Primary: Firestore query for owner==uid (safer and ensures only owned vehicles)
@@ -224,7 +261,7 @@ async function loadVehicleList(uid) {
         const card = document.createElement('div');
         card.className = 'vehicle-card';
         const title = document.createElement('div'); title.className='title'; title.textContent = (v.label || k.replace(/_/g,' '));
-        const sub = document.createElement('div'); sub.className='subtitle'; sub.textContent = (v.desc || `ID: ${k}`);
+        const sub = document.createElement('div'); sub.className='subtitle'; sub.textContent = (v.description || v.desc || `ID: ${k}`);
         const actions = document.createElement('div'); actions.className='actions';
         const btnTrack = document.createElement('button'); btnTrack.className='btn-mini track'; btnTrack.textContent='Track';
         btnTrack.addEventListener('click', () => { watchVehicle(k); });
@@ -232,8 +269,12 @@ async function loadVehicleList(uid) {
         btnDetails.addEventListener('click', () => { window.location.href = `vehicle.html?vehicle=${encodeURIComponent(k)}`; });
         actions.appendChild(btnTrack); actions.appendChild(btnDetails);
         card.appendChild(title); card.appendChild(sub); card.appendChild(actions);
+        // fade in
+        card.classList.add('fade-in');
         container.appendChild(card);
       });
+      // remove skeleton state
+      container.classList.remove('skeleton-loading');
       return;
     }
   } catch (fsqErr) {
@@ -249,6 +290,7 @@ async function loadVehicleList(uid) {
       const keys = Object.keys(mapSnap.val() || {});
       if (!keys.length) {
         container.innerHTML = '<div>No vehicles mapped to your account.</div>';
+        container.classList.remove('skeleton-loading');
         return;
       }
       // For each mapped key, read metadata from RTDB vehicles/{key} or busLocation/{key}
@@ -264,7 +306,7 @@ async function loadVehicleList(uid) {
           const card = document.createElement('div');
           card.className = 'vehicle-card';
           const title = document.createElement('div'); title.className='title'; title.textContent = (v && v.label) ? v.label : k.replace(/_/g,' ');
-          const sub = document.createElement('div'); sub.className='subtitle'; sub.textContent = (v && v.desc) ? v.desc : `ID: ${k}`;
+          const sub = document.createElement('div'); sub.className='subtitle'; sub.textContent = (v && (v.description || v.desc)) ? (v.description || v.desc) : `ID: ${k}`;
           const actions = document.createElement('div'); actions.className='actions';
           const btnTrack = document.createElement('button'); btnTrack.className='btn-mini track'; btnTrack.textContent='Track';
           btnTrack.addEventListener('click', () => { watchVehicle(k); });
@@ -272,24 +314,69 @@ async function loadVehicleList(uid) {
           btnDetails.addEventListener('click', () => { window.location.href = `vehicle.html?vehicle=${encodeURIComponent(k)}`; });
           actions.appendChild(btnTrack); actions.appendChild(btnDetails);
           card.appendChild(title); card.appendChild(sub); card.appendChild(actions);
+          card.classList.add('fade-in');
           container.appendChild(card);
         } catch (err) {
           console.warn('Failed to read metadata for', k, err);
         }
       }
+      container.classList.remove('skeleton-loading');
       return;
     }
     container.innerHTML = '<div>No vehicles found for your account.</div>';
+    container.classList.remove('skeleton-loading');
   } catch (err) {
     console.error('users/{uid}/vehicles mapping read error (RTDB):', err && err.code, err && err.message);
     container.innerHTML = `<div>RTDB read error: ${err && err.code || err}</div>`;
+    container.classList.remove('skeleton-loading');
   }
 }
 
 // Enhance watchVehicle to update selected info and highlight card
-function watchVehicle(vehicleKey) {
+async function watchVehicle(vehicleKey) {
   const key = sanitizeVehicleKey(vehicleKey);
   if (!key) return;
+  
+  // Validate ownership before allowing watch
+  if (currentUserUid) {
+    try {
+      const vehicleDocRef = fsDoc(dbFs, 'vehicles', key);
+      const vehicleSnap = await getDoc(vehicleDocRef);
+      
+      if (vehicleSnap.exists()) {
+        const vehicleData = vehicleSnap.data();
+        if (vehicleData.owner && vehicleData.owner !== currentUserUid) {
+          console.warn('Access denied: You do not own this vehicle');
+          const panel = document.getElementById('selectedInfo');
+          if (panel) {
+            panel.style.display = 'flex';
+            document.getElementById('selectedLabel').textContent = 'Access Denied';
+            document.getElementById('selectedAddress').textContent = 'You can only view vehicles you own.';
+            document.getElementById('selectedMeta').textContent = '';
+          }
+          return;
+        }
+      } else {
+        // Check if vehicle exists in user's collection
+        const userVehicleRef = fsDoc(dbFs, 'users', currentUserUid, 'vehicles', key);
+        const userVehicleSnap = await getDoc(userVehicleRef);
+        if (!userVehicleSnap.exists()) {
+          console.warn('Vehicle not found in your collection');
+          const panel = document.getElementById('selectedInfo');
+          if (panel) {
+            panel.style.display = 'flex';
+            document.getElementById('selectedLabel').textContent = 'Not Found';
+            document.getElementById('selectedAddress').textContent = 'Vehicle not found in your account.';
+            document.getElementById('selectedMeta').textContent = '';
+          }
+          return;
+        }
+      }
+    } catch (err) {
+      console.error('Ownership validation error:', err);
+    }
+  }
+  
   if (typeof currentUnsub === 'function') { try { currentUnsub(); } catch(e){} currentUnsub=null; }
   const path = `vehicles/${key}`;
   const rRef = ref(rtdb, path);
@@ -301,6 +388,11 @@ function watchVehicle(vehicleKey) {
       if (ll) {
         marker.setLngLat([ll.longitude, ll.latitude]);
         map.flyTo({ center: [ll.longitude, ll.latitude], zoom: 14 });
+        // If on mobile, hide sidebar to maximize map view
+        try {
+          const rightSidebar = document.getElementById('rightSidebar');
+          if (rightSidebar && window.innerWidth <= 720) { rightSidebar.style.display = 'none'; }
+        } catch (e) {}
       }
       await renderSelectedInfo(key, data);
     } else {

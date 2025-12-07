@@ -19,14 +19,17 @@
   <!-- Minimal tracking page: map only -->
   <div id="map"></div>
   <div class="user-dropdown" style="right:12px;top:12px;position:absolute;z-index:9999;">
-    <a id="dashboardBtn" href="../user/home.html" class="btn-mini details" style="margin-right:8px">Dashboard</a>
+    <a id="dashboardBtn" href="../user/home.html" class="btn-mini dashboard-btn" aria-label="Dashboard">Dashboard</a>
     <button id="logoutBtn" class="btn-mini track">Logout</button>
   </div>
   <div id="message" class="message" style="display:none;"></div>
 
+  <!-- Mobile sidebar toggle -->
+  <button id="sidebarToggle" aria-label="Show vehicles" title="Show vehicles" style="position:absolute;right:12px;top:66px;z-index:9998;display:none;padding:8px 10px;border-radius:8px;border:none;background:#2f8a4a;color:#fff;box-shadow:0 6px 18px rgba(0,0,0,0.12);">Vehicles</button>
+
   <!-- Selected vehicle info (top-left) -->
   <div id="selectedInfo" class="selected-info" aria-live="polite" style="display:none;">
-    <div class="pin"></div>
+    <img class="pin" src="https://img.icons8.com/ios/452/bus.png" alt="vehicle" />
     <div class="info">
       <div id="selectedLabel" class="label">Selected vehicle</div>
       <div id="selectedAddress" class="address"></div>

@@ -1,21 +1,33 @@
 {
   "rules": {
-    "vehicles": {
-      "$vehicleId": {
-        ".read": "root.child('users').child(auth.uid).child('vehicles').child($vehicleId).exists()",
-        ".write": "auth != null"
-      }
-    },
-    "busLocation": {
-      "$vehicleId": {
-        ".read": "root.child('users').child(auth.uid).child('vehicles').child($vehicleId).exists()",
-        ".write": "auth != null"
-      }
-    },
     "users": {
       "$uid": {
         ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid"
+        ".write": "auth != null && auth.uid === $uid",
+        "vehicles": {
+          "$vehicleKey": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        },
+        "drivers": {
+          "$driverId": {
+            ".read": "auth != null && auth.uid === $uid",
+            ".write": "auth != null && auth.uid === $uid"
+          }
+        }
+      }
+    },
+    "vehicles": {
+      "$vehicleKey": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || data.child('owner').val() === auth.uid)",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || data.child('owner').val() === auth.uid || !data.exists())"
+      }
+    },
+    "busLocation": {
+      "$vehicleKey": {
+        ".read": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid)",
+        ".write": "auth != null && (root.child('users').child(auth.uid).child('vehicles').child($vehicleKey).exists() || root.child('vehicles').child($vehicleKey).child('owner').val() === auth.uid)"
       }
     }
   }

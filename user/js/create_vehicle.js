@@ -39,6 +39,7 @@ form.addEventListener('submit', async (e) => {
   statusEl.textContent = '';
   const number = document.getElementById('vehicleNumber').value.trim();
   const desc = document.getElementById('vehicleDesc').value.trim();
+  const driverId = (document.getElementById('driverId') && document.getElementById('driverId').value.trim()) || '';
   if (!number) { statusEl.textContent = 'Please enter a vehicle number.'; return; }
   const key = sanitizeVehicleKey(number);
 
@@ -53,7 +54,7 @@ form.addEventListener('submit', async (e) => {
   // write to user's list if authenticated
   if (uid) {
     try {
-      await setDoc(doc(db, 'users', uid, 'vehicles', key), { label: number, desc, addedAt: Date.now() }, { merge: true });
+      await setDoc(doc(db, 'users', uid, 'vehicles', key), { label: number, desc, driverId: driverId || null, addedAt: Date.now() }, { merge: true });
     } catch (err) {
       console.error('userVehicles write failed', err);
       statusEl.textContent = `Failed to save to your vehicles: ${err.code || err.message || err}`;
@@ -67,8 +68,25 @@ form.addEventListener('submit', async (e) => {
   }
 
   // write metadata under vehicles/<key>
-  try {
-    await setDoc(doc(db, 'vehicles', key), { label: number, desc, owner: uid || null, updatedAt: Date.now() }, { merge: true });
+    try {
+    await setDoc(doc(db, 'vehicles', key), { label: number, desc, owner: uid || null, driverId: driverId || null, updatedAt: Date.now() }, { merge: true });
+    // if a driverId was provided, write mappings
+    if (driverId && uid) {
+      try {
+        // Write to user's drivers subcollection
+        await setDoc(doc(db, 'users', uid, 'drivers', driverId), { vehicle: key, vehicleLabel: number, assignedAt: Date.now() }, { merge: true });
+        // Write to root-level drivers collection
+        await setDoc(doc(db, 'drivers', driverId), { 
+          vehicle: key, 
+          vehicleLabel: number, 
+          owner: uid, 
+          assignedAt: Date.now(),
+          updatedAt: Date.now() 
+        }, { merge: true });
+      } catch (drvErr) {
+        console.warn('Could not write driver mappings', drvErr);
+      }
+    }
     // Also write a mapping under Realtime Database so RTDB rules (per-user) can permit reads
     if (uid) {
       try {

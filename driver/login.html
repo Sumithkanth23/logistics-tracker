@@ -33,29 +33,34 @@
   width:100%;
 }    
 .footer a{ color:#93c5fd }
+    /* Responsive and skeleton helpers */
+    @media (max-width:720px){
+      .container{ margin:12px auto; padding:14px }
+      .header{ padding:10px }
+      .avatar{ width:32px; height:32px }
+    }
+    .skeleton-loading .container{ position:relative; overflow:hidden }
+    .skeleton-loading .container::after{ content:''; position:absolute; left:-140px; top:0; width:120px; height:100%; background:linear-gradient(90deg, rgba(255,255,255,0), rgba(255,255,255,0.6), rgba(255,255,255,0)); animation:shimmer 1.2s infinite }
+    @keyframes shimmer{ 100%{ transform:translateX(360px) } }
+    .fade-in{ animation:fadeIn .28s ease both }
+    @keyframes fadeIn{ from{ opacity:0; transform:translateY(6px) } to{ opacity:1; transform:none } }
   </style>
 </head>
 <body>
   <header class="header">
     <div class="brand">Logistic Transport Tracker - Driver</div>
-    <div class="header-actions">
-      <a href="../user/home.html" style="color:#fff;text-decoration:none">Dashboard</a>
-      <div style="position:relative">
-        <div class="avatar" id="userAvatar">D</div>
-        <div class="user-dropdown" id="userDropdown">
-          <a href="../user/home.html" style="display:block;padding:10px 12px;text-decoration:none;color:#111">Main</a>
-        </div>
-      </div>
-    </div>
   </header>
 
   <main class="main">
     <div class="container">
     <h1>Driver Login</h1>
-    <p class="lead">Sign in with the vehicle number to start sending location. No password required.</p>
+    <p class="lead">Enter your Driver ID and assigned Vehicle ID to login. Both must match.</p>
 
-    <label for="vehicleNo">Vehicle number</label>
-    <input id="vehicleNo" placeholder="TN 38 AB 1234" />
+    <label for="driverId">Driver ID</label>
+    <input id="driverId" placeholder="Enter your driver ID" required />
+
+    <label for="vehicleNo">Vehicle ID</label>
+    <input id="vehicleNo" placeholder="TN 38 AB 1234" required />
 
     <div>
       <button id="loginBtn" class="btn primary">Login as Driver</button>
@@ -69,15 +74,24 @@
   <footer class="footer">
     <div style="max-width:1200px;margin:0 auto;display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap">
       <div>
-        <strong>Logistic Transport Tracker</strong> &middot; Developer: <span id="devId">Sumithkanth23</span>
-        <div style="font-size:12px;color:#cbd5e1">Contact: <a href="mailto:contact@logistictransport.example">contact@logistictransport.example</a> &middot; Version 1.0</div>
+        <strong>Developed by</strong><br>
+        <div style="font-size:12px;color:inherit;display:inline-flex;gap:8px;align-items:center;margin-top:4px">
+          <a href="https://www.linkedin.com/in/sumithkanth-gunasekaran-aa9a93225" target="_blank" rel="noopener noreferrer" aria-label="LinkedIn" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M4.98 3.5C4.98 5 3.88 6.1 2.38 6.1S-.22 5 .98 3.5C2.38 2 4.98 2 4.98 3.5zM.5 8.99h4.97V24H.5zM9.5 8.99h4.77v2.07h.07c.66-1.25 2.28-2.57 4.7-2.57 5.03 0 5.96 3.31 5.96 7.61V24h-4.98v-7.18c0-1.71-.03-3.9-2.38-3.9-2.38 0-2.74 1.86-2.74 3.79V24H9.5z"/></svg>
+            LinkedIn
+          </a>
+          <a href="mailto:sumithkanth810@gmail.com" aria-label="Email" style="color:inherit;text-decoration:none;display:inline-flex;align-items:center;gap:6px">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 24 24" aria-hidden="true"><path d="M12 13.065L.5 4.5V20a2 2 0 0 0 2 2h19a2 2 0 0 0 2-2V4.5L12 13.065zM12 .5L0 10.5 2.5 12 12 5.435 21.5 12 24 10.5z"/></svg>
+            sumithkanth810@gmail.com
+          </a>
+        </div>
       </div>
-      <div style="font-size:13px;color:#cbd5e1">
+      <div style="font-size:13px;color:inherit">
         <a href="../privacy.html">Privacy</a>
         <span style="margin:0 8px">|</span>
         <a href="../terms.html">Terms</a>
         <span style="margin:0 8px">|</span>
-        <a href="mailto:contact@logistictransport.example">Contact Us</a>
+        <a href="mailto:sumithkanth810@gmail.com">Contact Us</a>
       </div>
     </div>
   </footer>
