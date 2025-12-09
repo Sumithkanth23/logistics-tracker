@@ -30,25 +30,20 @@ service cloud.firestore {
     
     // Global vehicles collection
     match /vehicles/{vehicleId} {
-      // Allow read if:
-      // 1. User is authenticated AND owner/driver
-      // 2. OR unauthenticated read for driver login validation (limited to driverId field check)
-      allow read: if (isAuthenticated() && (
-        resource.data.owner == request.auth.uid ||
-        resource.data.driverId == request.auth.uid
-      )) || true;  // Allow public read for driver login validation
+      // Allow read for anyone (needed for driver login and tracking)
+      allow read: if true;
       
       // Allow create if authenticated and setting self as owner
       allow create: if isAuthenticated() && 
         request.resource.data.owner == request.auth.uid;
       
       // Allow update if:
-      // 1. User is the owner AND
-      // 2. Not changing the owner field (or keeping it the same)
-      allow update: if isAuthenticated() && 
-        resource.data.owner == request.auth.uid &&
-        (!request.resource.data.diff(resource.data).affectedKeys().hasAny(['owner']) ||
-         request.resource.data.owner == resource.data.owner);
+      // 1. User is authenticated and is the owner (full update)
+      // 2. OR any authenticated user updating only location fields (for drivers)
+      allow update: if (isAuthenticated() && 
+        resource.data.owner == request.auth.uid) ||
+        (isAuthenticated() && 
+         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latitude', 'longitude', 'location', 'timestamp']));
       
       // Allow delete only by owner
       allow delete: if isAuthenticated() && 
