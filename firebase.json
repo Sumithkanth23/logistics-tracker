@@ -1,0 +1,11 @@
+{
+  "projects": {
+    "default": "tracking-application-d2060"
+  },
+  "database": {
+    "rules": "database.rules.json"
+  },
+  "firestore": {
+    "rules": "firestore.rules"
+  }
+}
