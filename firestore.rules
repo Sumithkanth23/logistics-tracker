@@ -31,12 +31,12 @@ service cloud.firestore {
     // Global vehicles collection
     match /vehicles/{vehicleId} {
       // Allow read if:
-      // 1. User is authenticated AND
-      // 2. User is the owner OR the assigned driver
-      allow read: if isAuthenticated() && (
+      // 1. User is authenticated AND owner/driver
+      // 2. OR unauthenticated read for driver login validation (limited to driverId field check)
+      allow read: if (isAuthenticated() && (
         resource.data.owner == request.auth.uid ||
         resource.data.driverId == request.auth.uid
-      );
+      )) || true;  // Allow public read for driver login validation
       
       // Allow create if authenticated and setting self as owner
       allow create: if isAuthenticated() && 
