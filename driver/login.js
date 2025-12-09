@@ -14,6 +14,8 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getFirestore(app);
 
+console.log('Firebase initialized for driver login');
+
 function sanitizeKey(v){
   return v.trim().toUpperCase().replace(/\s+/g,'_').replace(/[.#$\[\]]/g,'_');
 }
@@ -38,11 +40,14 @@ btn.addEventListener('click', async () => {
   }
   
   const vehicleKey = sanitizeKey(vehicleRaw);
+  console.log('Attempting login:', { driverId, vehicleKey });
   status.textContent = 'Validating driver and vehicle...';
   
   try {
     const ref = doc(db, 'vehicles', vehicleKey);
+    console.log('Fetching vehicle document from Firestore...');
     const snap = await getDoc(ref);
+    console.log('Document fetched:', snap.exists() ? 'exists' : 'does not exist');
     
     if (!snap.exists()) {
       status.textContent = 'Vehicle not found. Please check the vehicle ID.';
@@ -71,6 +76,9 @@ btn.addEventListener('click', async () => {
     }, 500);
   } catch (err) {
     console.error('Driver login error', err);
-    status.textContent = 'Error during login (see console).';
+    status.textContent = `Error: ${err.message || err.code || err}`;
+    if (err.code === 'permission-denied' || (err.message && err.message.toLowerCase().includes('permission'))) {
+      status.textContent += ' - Please ensure Firestore rules are deployed.';
+    }
   }
 });
