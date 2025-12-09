@@ -33,17 +33,13 @@ service cloud.firestore {
       // Allow read for anyone (needed for driver login and tracking)
       allow read: if true;
       
-      // Allow create if authenticated and setting self as owner
-      allow create: if isAuthenticated() && 
-        request.resource.data.owner == request.auth.uid;
-      
-      // Allow update if:
-      // 1. User is authenticated and is the owner (full update)
-      // 2. OR any authenticated user updating only location fields (for drivers)
-      allow update: if (isAuthenticated() && 
-        resource.data.owner == request.auth.uid) ||
-        (isAuthenticated() && 
-         request.resource.data.diff(resource.data).affectedKeys().hasOnly(['latitude', 'longitude', 'location', 'timestamp']));
+      // Allow write (create/update) if:
+      // 1. User is authenticated and is the owner, OR
+      // 2. Any authenticated user writing/updating location data
+      allow write: if isAuthenticated() && (
+        (request.resource.data.owner == request.auth.uid) ||
+        (!('owner' in request.resource.data.diff(resource.data).affectedKeys()))
+      );
       
       // Allow delete only by owner
       allow delete: if isAuthenticated() && 
