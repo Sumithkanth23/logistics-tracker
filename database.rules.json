@@ -1,34 +1,6 @@
 {
   "rules": {
-    "users": {
-      "$uid": {
-        ".read": "auth != null && auth.uid === $uid",
-        ".write": "auth != null && auth.uid === $uid",
-        "vehicles": {
-          "$vehicleKey": {
-            ".read": "auth != null && auth.uid === $uid",
-            ".write": "auth != null && auth.uid === $uid"
-          }
-        },
-        "drivers": {
-          "$driverId": {
-            ".read": "auth != null && auth.uid === $uid",
-            ".write": "auth != null && auth.uid === $uid"
-          }
-        }
-      }
-    },
-    "vehicles": {
-      "$vehicleKey": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    },
-    "busLocation": {
-      "$vehicleKey": {
-        ".read": "auth != null",
-        ".write": "auth != null"
-      }
-    }
+    ".read": true,
+    ".write": true
   }
 }

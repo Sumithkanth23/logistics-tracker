@@ -38,8 +38,8 @@ function getSelectedVehicleNo() {
   return stored || '';
 }
 
-signInAnonymously(auth).catch((err) => console.warn('Firebase anonymous sign-in failed:', err && err.message));
-onAuthStateChanged(auth, (user) => console.log('Auth state (driver):', user ? { uid: user.uid, isAnonymous: user.isAnonymous } : null));
+// Authentication disabled for open access
+console.log('Driver transmit page loaded - authentication not required');
 
 // Driver logout handler
 const driverLogoutBtn = document.getElementById('driverLogoutBtn');
@@ -53,12 +53,7 @@ if (driverLogoutBtn) {
     // Clear session data
     localStorage.removeItem('driverVehicle');
     localStorage.removeItem('driverId');
-    // Sign out and redirect
-    try {
-      await signOut(auth);
-    } catch (err) {
-      console.warn('Sign out error:', err);
-    }
+    // Redirect to home
     window.location.href = '../index.html';
   });
 }
@@ -174,8 +169,7 @@ window.sendLocationOnce = function () {
             latitude,
             longitude,
             location: { latitude, longitude },
-            timestamp: Date.now(),
-            owner: auth.currentUser ? auth.currentUser.uid : null
+            timestamp: Date.now()
           });
         } catch (rtdbErr) {
           console.warn('RTDB write failed (one-time)', rtdbErr);
@@ -214,8 +208,7 @@ window.startSendingLocation = function () {
             latitude,
             longitude,
             location: { latitude, longitude },
-            timestamp: Date.now(),
-            owner: auth.currentUser ? auth.currentUser.uid : null
+            timestamp: Date.now()
           });
         } catch (rtdbErr) {
           console.warn('RTDB write failed (interval)', rtdbErr);
